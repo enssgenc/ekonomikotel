@@ -2,6 +2,7 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { render } from "../.ssr/entry-server.js";
 const data = JSON.parse(await readFile("src/data/catalog.json", "utf8"));
 const template = await readFile("dist/index.html", "utf8");
+await writeFile("dist/shell.html", template);
 const escape = (value) =>
   String(value)
     .replaceAll("&", "&amp;")
@@ -52,7 +53,10 @@ for (const [url, title, description] of [
   ["/404", "Sayfa Bulunamadı", "Aradığınız sayfa bulunamadı."],
 ]) {
   let html = template
-    .replace('<div id="root"></div>', `<div id="root">${render(url)}</div>`)
+    .replace(
+      '<div id="root"></div>',
+      `<div id="root">${render(url, data)}</div>`,
+    )
     .replace(
       /<title>.*?<\/title>/,
       `<title>${escape(title)} | Ekonomikotel</title>`,

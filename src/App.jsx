@@ -54,9 +54,8 @@ import {
   Moon,
   Buildings,
 } from "@phosphor-icons/react";
-import catalog from "./data/catalog.json";
+import { useCatalog } from "./CatalogContext.jsx";
 
-const { hotels, tours, amenities, hero } = catalog;
 const PHONE = "0534 235 46 88";
 const TEL = "+905342354688";
 const normal = (value = "") =>
@@ -86,7 +85,7 @@ const dateText = (value) =>
         year: "numeric",
       }).format(new Date(`${value}T12:00:00`))
     : "";
-const districts = [
+const defaultDistricts = [
   "Göreme",
   "Ürgüp",
   "Uçhisar",
@@ -106,13 +105,15 @@ const facilityIcons = {
   kids: Baby,
 };
 const Favorites = createContext();
-const hotelIds = new Set(hotels.map((h) => h.slug));
+
 function readFavorites() {
   try {
     const value = JSON.parse(
       localStorage.getItem("ekonomikotel:favorites") || "[]",
     );
-    return Array.isArray(value) ? value.filter((id) => hotelIds.has(id)) : [];
+    return Array.isArray(value)
+      ? value.filter((id) => typeof id === "string")
+      : [];
   } catch {
     return [];
   }
@@ -141,6 +142,7 @@ function IconLabel({ icon: Icon, children }) {
   );
 }
 function Amenities({ list, limit = 4 }) {
+  const { amenities } = useCatalog();
   return (
     <div className="amenities">
       {list.slice(0, limit).map((key) => {
@@ -431,6 +433,10 @@ function DateInput({ onChange, ...props }) {
   );
 }
 function SearchBox({ compact = false, initialKind = "otel" }) {
+  const { hotels } = useCatalog();
+  const districts = [
+    ...new Set([...defaultDistricts, ...hotels.map((h) => h.district)]),
+  ].filter(Boolean);
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const id = useId();
@@ -571,7 +577,25 @@ function SearchBox({ compact = false, initialKind = "otel" }) {
     </div>
   );
 }
+function PriceSummary({ item }) {
+  if (item.priceMode === "from" && item.fromPrice > 0)
+    return (
+      <span className="managed-price">
+        <strong>
+          {new Intl.NumberFormat("tr-TR", {
+            style: "currency",
+            currency: item.currency || "TRY",
+            maximumFractionDigits: 0,
+          }).format(item.fromPrice)}
+          <small>’den başlayan</small>
+        </strong>
+        <small>{item.priceUnit}</small>
+      </span>
+    );
+  return <span className="managed-price">Tarihinize özel teklif</span>;
+}
 function HotelCard({ hotel, horizontal = false }) {
+  const { hotels, amenities } = useCatalog();
   const location = useLocation();
   return (
     <article className={`hotel-card ${horizontal ? "horizontal" : ""}`}>
@@ -596,7 +620,7 @@ function HotelCard({ hotel, horizontal = false }) {
       <div className="hotel-content">
         <p className="location">
           <MapPin size={14} />
-          {hotel.district}, Kapadokya
+          {hotel.district}, {hotel.city}
         </p>
         <h3>
           <Link to={`/oteller/${hotel.slug}${location.search}`}>
@@ -608,7 +632,7 @@ function HotelCard({ hotel, horizontal = false }) {
         )}
         <Amenities list={hotel.amenities} limit={horizontal ? 5 : 2} />
         <div className="hotel-bottom">
-          <span>Tarihinize özel fiyat</span>
+          <PriceSummary item={hotel} />
           <Link
             to={`/oteller/${hotel.slug}${location.search}`}
             aria-label={`${hotel.name} otelini incele`}
@@ -648,10 +672,7 @@ function TourCard({ tour }) {
           planda.
         </p>
         <div className="tour-bottom">
-          <span>
-            <strong>Size özel planlayalım</strong>
-            <small>Tarih ve kişi sayısına göre teklif</small>
-          </span>
+          <PriceSummary item={tour} />
           <ButtonLink to={`/turlar/${tour.slug}${location.search}`} secondary>
             Paketi incele
           </ButtonLink>
@@ -661,6 +682,7 @@ function TourCard({ tour }) {
   );
 }
 function Home() {
+  const { hotels, tours, hero } = useCatalog();
   const [featuredRegion, setFeaturedRegion] = useState("Tümü");
   const picks = [
     "kayakapi-premium-caves-cappadocia",
@@ -670,9 +692,14 @@ function Home() {
   ]
     .map((id) => hotels.find((h) => h.slug === id))
     .filter(Boolean);
+  const selectedPicks = hotels.filter((h) => h.featured);
   const featured =
     featuredRegion === "Tümü"
-      ? picks
+      ? selectedPicks.length
+        ? selectedPicks.slice(0, 4)
+        : picks.length
+          ? picks
+          : hotels.slice(0, 4)
       : hotels
           .filter((h) => normal(h.district).includes(normal(featuredRegion)))
           .slice(0, 4);
@@ -795,9 +822,12 @@ function Home() {
             label="Turları keşfet"
           />
           <div className="tour-grid">
-            {tours.map((t) => (
-              <TourCard tour={t} key={t.slug} />
-            ))}
+            {tours
+              .filter((t) => t.featured !== false)
+              .slice(0, 4)
+              .map((t) => (
+                <TourCard tour={t} key={t.slug} />
+              ))}
           </div>
         </section>
         <DestinationSection />
@@ -838,6 +868,7 @@ function Home() {
   );
 }
 function DestinationSection() {
+  const { hotels, hero } = useCatalog();
   const selected = ["Göreme", "Ürgüp", "Uçhisar", "Avanos"];
   return (
     <section className="section destinations-section">
@@ -898,6 +929,10 @@ function HelpStrip() {
   );
 }
 function CatalogPage({ saved = false }) {
+  const { hotels, amenities } = useCatalog();
+  const districts = [
+    ...new Set([...defaultDistricts, ...hotels.map((h) => h.district)]),
+  ].filter(Boolean);
   const [params, setParams] = useSearchParams();
   const { favorites } = useContext(Favorites);
   const [visible, setVisible] = useState(12);
@@ -1163,7 +1198,7 @@ function Gallery({ item }) {
   const [index, setIndex] = useState(0);
   const dialog = useRef(null);
   const close = useRef(null);
-  const images = item.gallery;
+  const images = [...new Set([item.img, ...item.gallery].filter(Boolean))];
   const open = (i) => {
     setIndex(i);
     dialog.current.showModal();
@@ -1308,6 +1343,12 @@ function OfferForm({ item, type = "otel" }) {
   };
   return (
     <aside className="offer-panel" id="fiyat-talebi">
+      {item.priceMode === "from" && (
+        <div className="offer-price">
+          <PriceSummary item={item} />
+          <small>Başlangıç fiyatı · kesin fiyat teklifinizde netleşir.</small>
+        </div>
+      )}
       <h2>Tatili birlikte planlayalım.</h2>
       <p>Tarihlerinizi seçin, size özel fiyat ve müsaitlik bilgisi isteyin.</p>
       <form onSubmit={submit}>
@@ -1429,6 +1470,7 @@ function OfferForm({ item, type = "otel" }) {
   );
 }
 function DetailPage({ type = "otel" }) {
+  const { hotels, tours, amenities } = useCatalog();
   const { slug } = useParams();
   const location = useLocation();
   const item = (type === "otel" ? hotels : tours).find((h) => h.slug === slug);
@@ -1440,7 +1482,7 @@ function DetailPage({ type = "otel" }) {
         <Link to="/">Ana sayfa</Link>
         <CaretRight size={12} />
         <Link to={isHotel ? "/oteller" : "/turlar"}>
-          {isHotel ? "Kapadokya otelleri" : "Kapadokya turları"}
+          {isHotel ? "Oteller" : "Turlar"}
         </Link>
         <CaretRight size={12} />
         <span>{item.name || item.title}</span>
@@ -1450,7 +1492,7 @@ function DetailPage({ type = "otel" }) {
           <h1>{item.name || item.title}</h1>
           <p>
             <MapPin size={17} />
-            {isHotel ? `${item.district}, ${item.city}` : "Kapadokya"}
+            {isHotel ? `${item.district}, ${item.city}` : item.city}
             <span>·</span>
             {isHotel ? item.concept : item.duration}
           </p>
@@ -1489,6 +1531,23 @@ function DetailPage({ type = "otel" }) {
           </section>
           {isHotel ? (
             <>
+              {!!item.rooms?.length && (
+                <section id="odalar">
+                  <h2>Oda tipleri</h2>
+                  <div className="room-types">
+                    {item.rooms.map((room, i) => (
+                      <article key={room.id || i}>
+                        <h3>{room.name}</h3>
+                        <p>
+                          <Users size={17} /> En fazla {room.capacity} kişi
+                          {room.concept ? ` · ${room.concept}` : ""}
+                        </p>
+                        {room.description && <p>{room.description}</p>}
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
               <section id="olanaklar">
                 <h2>Otel olanakları</h2>
                 <Amenities list={item.amenities} limit={100} />
@@ -1498,7 +1557,9 @@ function DetailPage({ type = "otel" }) {
                 <div className="location-box">
                   <div>
                     <MapPin size={30} />
-                    <h3>{item.district}, Kapadokya</h3>
+                    <h3>
+                      {item.district}, {item.city}
+                    </h3>
                     <p>{item.address || `${item.district}, ${item.city}`}</p>
                   </div>
                   {item.maps && (
@@ -1551,6 +1612,36 @@ function DetailPage({ type = "otel" }) {
                   ))}
                 </ul>
               </section>
+              {!!item.excludes?.length && (
+                <section>
+                  <h2>Dahil olmayanlar</h2>
+                  <ul className="includes">
+                    {item.excludes.filter(Boolean).map((x, i) => (
+                      <li key={i}>
+                        <Info size={21} />
+                        <span>{clean(x)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+              {!!item.departureDates?.length && (
+                <section>
+                  <h2>Planlanan hareket tarihleri</h2>
+                  <p>
+                    {item.departureDates
+                      .filter((d) => d >= localDate())
+                      .map(dateText)
+                      .join(" · ") || "Güncel tarihler için bilgi isteyin."}
+                  </p>
+                  {item.departureCity && (
+                    <p>Hareket noktası: {item.departureCity}</p>
+                  )}
+                  <p>
+                    Kesin hareket ve müsaitlik teklif aşamasında doğrulanır.
+                  </p>
+                </section>
+              )}
               <section>
                 <h2>Tur rotaları</h2>
                 {item.tourRoutes?.map((route) => (
@@ -1610,14 +1701,15 @@ function DetailPage({ type = "otel" }) {
   );
 }
 function ToursPage() {
+  const { tours } = useCatalog();
   const [params] = useSearchParams();
   const query = params.get("q") || "";
   const found = tours.filter(
     (t) =>
       !query ||
-      normal(
-        `${t.title} ${t.shortDesc} kapadokya göreme ürgüp uçhisar avanos`,
-      ).includes(normal(query)),
+      normal(`${t.title} ${t.shortDesc} ${t.city} ${t.category}`).includes(
+        normal(query),
+      ),
   );
   return (
     <div className="shell tours-page">
@@ -1701,6 +1793,7 @@ function ToursPage() {
   );
 }
 function Guide() {
+  const { tours, hero } = useCatalog();
   return (
     <div className="shell guide-page">
       <nav className="breadcrumb" aria-label="Sayfa yolu">
@@ -1755,6 +1848,7 @@ function Guide() {
   );
 }
 function Contact() {
+  const { hero } = useCatalog();
   return (
     <div className="shell contact-page">
       <nav className="breadcrumb" aria-label="Sayfa yolu">
@@ -1861,6 +1955,7 @@ function NotFound() {
   );
 }
 function RouteEffects() {
+  const { hotels, tours } = useCatalog();
   const location = useLocation();
   const previous = useRef(location.pathname);
   useEffect(() => {
@@ -1868,6 +1963,8 @@ function RouteEffects() {
     const hotel = hotels.find((h) => path === `/oteller/${h.slug}`);
     const tour = tours.find((t) => path === `/turlar/${t.slug}`);
     const title =
+      hotel?.seoTitle ||
+      tour?.seoTitle ||
       hotel?.name ||
       tour?.title ||
       {
@@ -1879,6 +1976,15 @@ function RouteEffects() {
       }[path] ||
       "Kapadokya Otelleri ve Tatil Paketleri";
     document.title = `${title} | Ekonomikotel`;
+    const description =
+      hotel?.seoDescription ||
+      tour?.seoDescription ||
+      hotel?.blurb ||
+      tour?.shortDesc;
+    if (description)
+      document
+        .querySelector('meta[name="description"]')
+        ?.setAttribute("content", description.slice(0, 180));
     document
       .querySelector('link[rel="canonical"]')
       ?.setAttribute(
@@ -1894,6 +2000,7 @@ function RouteEffects() {
   return null;
 }
 export default function App() {
+  const { previewId } = useCatalog();
   const [favorites, setFavorites] = useState(readFavorites);
   const [announcement, setAnnouncement] = useState("");
   const toggle = (id) =>
@@ -1915,6 +2022,12 @@ export default function App() {
     <Favorites.Provider value={{ favorites, toggle }}>
       <RouteEffects />
       <Header />
+      {previewId && (
+        <div className="preview-banner">
+          Yönetici önizlemesi · Bu içerik ziyaretçilere açık olmayabilir.{" "}
+          <a href={`/admin/icerik/${previewId}`}>Düzenlemeye dön</a>
+        </div>
+      )}
       <main id="main" tabIndex={-1}>
         <Routes>
           <Route path="/" element={<Home />} />

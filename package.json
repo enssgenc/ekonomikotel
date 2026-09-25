@@ -4,20 +4,27 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1 --port 4173",
+    "dev": "vite --host 127.0.0.1 --port 5173",
     "build": "npm run build:health && vite build && vite build --ssr src/entry-server.jsx --outDir .ssr && node scripts/static-routes.mjs",
-    "preview": "vite preview --host 127.0.0.1 --port 4173",
+    "preview": "node server/index.mjs",
     "check": "node scripts/check-content.mjs",
-    "build:health": "cd health && ../node_modules/.bin/vite build"
+    "build:health": "cd health && ../node_modules/.bin/vite build",
+    "start": "node server/index.mjs",
+    "dev:api": "node --watch server/index.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "admin:create": "node server/create-admin.mjs",
+    "backup": "node server/backup.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
+    "express": "^5.2.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.9.0"
+    "react-router-dom": "^7.9.0",
+    "zod": "^4.6.5",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
-    "vite": "8.3.1",
-    "sharp": "^0.34.5"
+    "vite": "8.3.1"
   }
 }

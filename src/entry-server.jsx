@@ -3,13 +3,16 @@ import { renderToString } from "react-dom/server";
 import { StaticRouter } from "react-router-dom";
 import { IconContext } from "@phosphor-icons/react";
 import App from "./App.jsx";
-export function render(url) {
+import { CatalogContext } from "./CatalogContext.jsx";
+export function render(url, catalog) {
   return renderToString(
     <StaticRouter location={url}>
       <IconContext.Provider
         value={{ size: 21, weight: "regular", "aria-hidden": true }}
       >
-        <App />
+        <CatalogContext.Provider value={catalog}>
+          <App />
+        </CatalogContext.Provider>
       </IconContext.Provider>
     </StaticRouter>,
   );

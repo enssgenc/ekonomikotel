@@ -36,3 +36,15 @@
 - Göreme ve Ürgüp seçimlerinde dört kartın da seçilen bölgeyi gösterdiği doğrulandı.
 - Yeni karttan Alden Hotel Cappadocia detay sayfasına geçildi; doğru başlık, sıfır yatay taşma ve sıfır bozuk yüklenmiş görsel doğrulandı.
 - Kontrol edilen akışta tarayıcı uygulama hatası görülmedi. Mevcut sağlık ve rezervasyon/teklif kapsamı korunur.
+
+## Admin panel — 2026-09-25
+
+- `npm run build`: public/admin client builds, SSR bundle and static fallback generation pass.
+- `npm run test`: 20 tests pass. Covers seed preservation/idempotence, editable source nulls, empty catalogue, auth/session/CSRF, filtered/paginated lists, drafts and private previews, publication and dynamic SSR/sitemap, version conflicts, image decoding, tour program publication, archives, export, logout, login throttling, persistence and aborted client response handling.
+- `npm run check`: 129 hotel descriptions and galleries, 2 tours and health integration retained.
+- Browser: single-account login; create hotel draft; choose image from library; publish; verify public hotel detail. All write tests used a separate QA database.
+- Browser: 1280px dashboard, 390px hotel editor and tour list/program; no horizontal page overflow. Unsaved edits remain after cancelling navigation.
+- Resolved browser-discovered issues: aborted JSON requests no longer become malformed successful list data; combined catalogue filters have correct SQL spacing. Regression coverage added for both.
+- `npm run backup` against QA database: SQLite integrity check `ok`, 132 expected records in the backup.
+- Delivery database: 129 hotels, 2 tours, exactly one administrator; no QA content. Generated credential file is outside Git and mode 0600. Actual local account login verified without logging its password.
+- Docker executable unavailable: container, Coolify persistence and public deployment checks remain release steps, documented in `docs/admin.md`. No live deployment performed.

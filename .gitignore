@@ -11,3 +11,10 @@ health/dist/
 
 # Generated from health/ during build
 public/saglik-turizmi/
+
+# Runtime data and local credentials
+data/
+.env
+.env.*
+!.env.example
+*.sqlite*

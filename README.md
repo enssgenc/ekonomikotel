@@ -10,10 +10,11 @@ Node.js 24 ile:
 npm ci
 npm run build
 npm run check
-npm run preview
+npm run admin:create
+npm start
 ```
 
-Önizleme: `http://127.0.0.1:4173/`. Geliştirme: `npm run dev`.
+Önizleme: `http://127.0.0.1:4173/`. Admin: `/admin`. İlk giriş bilgileri `data/admin-access.txt` içinde oluşturulur. Detaylar: [Yönetim ve kurulum](docs/admin.md).
 
 ## İçerik ve işlevler
 
@@ -22,7 +23,8 @@ npm run preview
 - Tüm otel galerileri, tur programları, dahil olan hizmetler ve kaynak koşulları.
 - Tarih/misafir seçimi ve mevcut Ekonomikotel WhatsApp hattında açılan teklif metni.
 - Altı dilli sağlık içeriği ve blog; ana tatil sitesine dönüş bağlantısı.
-- 138 önceden oluşturulan sayfa, ayrı 404 sayfası, sitemap ve yerel fontlar.
+- Veritabanından sunucuda oluşturulan güncel sayfalar, 404, dinamik sitemap ve yerel fontlar.
+- Tek yönetici hesabı, otel/tur ekleme-düzenleme, taslak/yayın/arşiv, görsel yükleme, sürüm geçmişi ve JSON dışa aktarma.
 
 Kaynak, `enssgenc/ekonomiltatilimv2` reposunun `bbade297e884fe5f67626f9c4b078ff9cb0468c3` commitidir. Özgün içerikler ve görsel eşlemesi `docs/source/` altında korunur. Yeniden içe aktarma için kaynak repoyu kardeş `../source-ett` klasörüne koyup `node scripts/import-catalog.mjs` çalıştırın.
 
@@ -32,8 +34,6 @@ Katalog bir kaynak anlık görüntüsüdür. Canlı fiyat, stok, ödeme veya rez
 
 ## Yayın
 
-Dockerfile, önce siteyi oluşturup kontrol eder, ardından `dist/` klasörünü Nginx ile sunar. Coolify mevcut repo ve Dockerfile düzenini kullanabilir. Projenin `main` dalı otomatik yayına bağlıdır; bu tasarım `codex/ekonomikotel-travel-design` dalında hazırlanmıştır. İlk teslimde üretime yayın yapılmamıştır.
+Dockerfile Node24 sunucusu, SQLite ve kalıcı `/data` dizini kullanır. Coolify'da port 3000, HTTPS APP_ORIGIN ve kalıcı volume gereklidir. **Main otomatik yayına bağlıdır; merge öncesi [yayın geçiş adımlarını](docs/admin.md#coolify-için-gerekli-geçiş) tamamlayın.** Çalışma `codex/ekonomikotel-travel-design` dalındadır, üretime dağıtılmamıştır.
 
-Sağlık bölümü mevcut `noindex` ayarını korur. Docker/Nginx konteyner çalıştırma kontrolü bu makinede Docker bulunmadığı için yapılmamıştır; yerel üretim derlemesi ve tarayıcı kontrolleri yapılmıştır.
-
-Tasarım yönü ve uygulanan skill kaynakları: `DESIGN.md`, ürün kapsamı: `PRODUCT.md`.
+Sağlık bölümü mevcut `noindex` ayarını korur. Tasarım yönü: `DESIGN.md`; ürün kapsamı: `PRODUCT.md`.
