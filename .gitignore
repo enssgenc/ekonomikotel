@@ -1,3 +1,13 @@
 .DS_Store
 ._*
 Thumbs.db
+node_modules/
+dist/
+.DS_Store
+*.log
+
+.ssr/
+health/dist/
+
+# Generated from health/ during build
+public/saglik-turizmi/
