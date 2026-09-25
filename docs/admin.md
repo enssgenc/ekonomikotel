@@ -78,12 +78,12 @@ Testler izole geçici veritabanıyla çalışır; gerçek katalog kayıtlarını
 
 ## Coolify için gerekli geçiş
 
-Bu dal henüz üretime dağıtılmadı. Eski uygulama statik Nginx/80 kullanıyor; yeni sürüm Node/3000 + kalıcı SQLite kullanır. **Main otomatik deploy tetikler; aşağıdaki ayarlar merge öncesi hazırlanmalıdır.**
+Eski uygulama statik Nginx/80 kullanıyordu; bu sürüm Node/3000 + kalıcı SQLite kullanır. **Main otomatik deploy tetikler; aşağıdaki ayarlar merge öncesi hazırlanmalıdır.**
 
 1. Kalıcı volume/bind mount hedefini **`/data`** olarak ekleyin. Dizin UID/GID `1000:1000` (node kullanıcısı) tarafından yazılabilir olmalı. DB ve yüklenen görseller burada kalır; container katmanı üzerinde bırakmayın.
 2. İç servis portunu **3000** yapın. Healthcheck `/api/health`. Tek uygulama replikası, yerel volume; paylaşımlı ağ dosya sistemi kullanmayın.
 3. Runtime ortamı: `NODE_ENV=production`, `DATA_DIR=/data`, `PORT=3000`, `APP_ORIGIN=https://kanonik-alan-adiniz`, `TRUST_PROXY=1`. APP_ORIGIN sonunda `/` olmamalı; yöneticinin kullandığı HTTPS origin ile aynı olmalı. Alternatif alan adlarını kanonik adrese proxy üzerinden yönlendirin. Portu internete ayrıca açmayın; Coolify HTTPS reverse proxy arkasında tutun.
-4. İlk container açılışından sonra container terminalinde `npm run admin:create`. Şifre dosyası `/data/admin-access.txt`. Bir kez oluşturun; API ile açık kayıt endpoint'i yoktur.
+4. İlk container açılışında `node server/create-admin.mjs --if-missing` komutunu post-deployment adımı olarak çalıştırın. Var olan hesabı veya şifresini değiştirmez. İlk kurulum için `ADMIN_USERNAME` ve `ADMIN_PASSWORD` kullanılabilir; şifre dosyası `/data/admin-access.txt`. API ile açık kayıt endpoint'i yoktur.
 5. İlk giriş, görsel yükleme, bir taslak, yayınlama, tekrar arşivleme ve container yeniden oluşturulduktan sonra kayıt/görsel kalıcılığını doğrulayın. Gerçek müşteri içeriğini test için kullanmayın.
 6. Günlük yedekleri ayrı diske/uzak depoya alın. `/data` volume'unu silmek geri dönüşsüz veri kaybına yol açar. Birden fazla replika gerekirse önce sunucu veritabanı ve nesne depolama mimarisine geçin.
 

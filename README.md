@@ -36,6 +36,6 @@ Katalog bir kaynak anlık görüntüsüdür. Canlı fiyat, stok, ödeme veya rez
 
 ## Yayın
 
-Dockerfile Node24 sunucusu, SQLite ve kalıcı `/data` dizini kullanır. Coolify'da port 3000, HTTPS APP_ORIGIN ve kalıcı volume gereklidir. **Main otomatik yayına bağlıdır; merge öncesi [yayın geçiş adımlarını](docs/admin.md#coolify-için-gerekli-geçiş) tamamlayın.** Çalışma `codex/ekonomikotel-travel-design` dalındadır, üretime dağıtılmamıştır.
+Dockerfile Node24 sunucusu, SQLite ve kalıcı `/data` dizini kullanır. Coolify'da port 3000, HTTPS APP_ORIGIN ve kalıcı volume gereklidir. **Main otomatik yayına bağlıdır; merge öncesi [yayın geçiş adımlarını](docs/admin.md#coolify-için-gerekli-geçiş) tamamlayın.** Üretim adresi `https://ekonomikotel.com`; dağıtım tamamlanması Coolify durumu ve canlı HTTP kontrolleriyle doğrulanır.
 
 Sağlık bölümü mevcut `noindex` ayarını korur. Tasarım yönü: `DESIGN.md`; ürün kapsamı: `PRODUCT.md`.
