@@ -20,3 +20,19 @@
 - Docker bu makinede bulunmadığı için konteyner çalıştırma testi yapılamadı. Üretime dağıtım yapılmadı.
 - Vite ana JS paketi 616 kB (gzip 140 kB civarı) boyut uyarısı ve React Router direktif uyarısı veriyor; derleme başarılı.
 - Görünüm kontrolü kapsamlı bir ekran okuyucu veya tüm tarayıcı sertifikasyonu değildir.
+
+## Tasarım iyileştirmesi
+
+| Önce | Sonra | Gerekçe |
+| --- | --- | --- |
+| Soğuk ve geniş açılış görseli | Sıcak teras görseli, çerçeveli masaüstü açılışı ve kısa başlık | Bölgenin atmosferini ilk ekranda güçlendirmek |
+| Küçük kart yazıları ve dar mobil kolonlar | Daha büyük fotoğraf/yazı, mobilde kaydırılan geniş kartlar | Otel seçimini ve dokunmayı kolaylaştırmak |
+| Sabit dört otel | Tümü/Göreme/Ürgüp/Uçhisar/Avanos bölge seçimi | Ana sayfadan ilgili otellere hızlı ulaşmak |
+| Benzer beyaz bölüm düzenleri | Sıcak tur zemini ve fotoğraf üstü bölge başlıkları | Sayfa bölümlerinin ayrımını güçlendirmek |
+
+- `npm run build`, `npm run check`, `git diff --check` başarılı.
+- 1280px masaüstünde ana sayfa, arama yüzeyi ve otel vitrini kontrol edildi.
+- 325px dar mobilde taşma düzeltildi: sayfa genişliği 325px; yalnızca otel vitrini kendi içinde yatay kaydırılıyor.
+- Göreme ve Ürgüp seçimlerinde dört kartın da seçilen bölgeyi gösterdiği doğrulandı.
+- Yeni karttan Alden Hotel Cappadocia detay sayfasına geçildi; doğru başlık, sıfır yatay taşma ve sıfır bozuk yüklenmiş görsel doğrulandı.
+- Kontrol edilen akışta tarayıcı uygulama hatası görülmedi. Mevcut sağlık ve rezervasyon/teklif kapsamı korunur.

@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { IconContext } from "@phosphor-icons/react";
 import App from "./App.jsx";
 import "./styles.css";
+import "./refinements.css";
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>

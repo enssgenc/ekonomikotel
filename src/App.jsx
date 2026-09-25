@@ -426,7 +426,9 @@ function GuestPicker({ adults, children, onChange }) {
 // Native date controls can emit input before committing change (including WebKit).
 // Handling both keeps the controlled value and dependent minimum date synchronized.
 function DateInput({ onChange, ...props }) {
-  return <input type="date" {...props} onInput={onChange} onChange={onChange} />;
+  return (
+    <input type="date" {...props} onInput={onChange} onChange={onChange} />
+  );
 }
 function SearchBox({ compact = false, initialKind = "otel" }) {
   const [params] = useSearchParams();
@@ -515,7 +517,6 @@ function SearchBox({ compact = false, initialKind = "otel" }) {
           <div>
             <CalendarBlank size={20} />
             <DateInput
-              
               aria-label="Giriş tarihi"
               min={localDate()}
               value={start}
@@ -531,7 +532,6 @@ function SearchBox({ compact = false, initialKind = "otel" }) {
           <div>
             <CalendarBlank size={20} />
             <DateInput
-              
               aria-label="Çıkış tarihi"
               min={start ? dayAfter(start) : dayAfter(localDate())}
               value={end}
@@ -584,6 +584,14 @@ function HotelCard({ hotel, horizontal = false }) {
           <img src={hotel.img} alt="" width="680" height="460" loading="lazy" />
         </Link>
         <FavoriteButton hotel={hotel} />
+        <span className="hotel-type">{hotel.concept}</span>
+        <span
+          className="photo-count"
+          aria-label={`${hotel.gallery.length} fotoğraf`}
+        >
+          <Images size={14} />
+          {hotel.gallery.length}
+        </span>
       </div>
       <div className="hotel-content">
         <p className="location">
@@ -595,7 +603,6 @@ function HotelCard({ hotel, horizontal = false }) {
             {hotel.name}
           </Link>
         </h3>
-        <span className="concept">{hotel.concept}</span>
         {horizontal && (
           <p className="hotel-description">{clean(hotel.blurb)}</p>
         )}
@@ -654,6 +661,7 @@ function TourCard({ tour }) {
   );
 }
 function Home() {
+  const [featuredRegion, setFeaturedRegion] = useState("Tümü");
   const picks = [
     "kayakapi-premium-caves-cappadocia",
     "sacred-mansion-cappadocia",
@@ -662,31 +670,49 @@ function Home() {
   ]
     .map((id) => hotels.find((h) => h.slug === id))
     .filter(Boolean);
+  const featured =
+    featuredRegion === "Tümü"
+      ? picks
+      : hotels
+          .filter((h) => normal(h.district).includes(normal(featuredRegion)))
+          .slice(0, 4);
   return (
-    <>
+    <div className="home-page">
       <section className="hero">
         <img
           className="hero-photo"
-          src={hero}
-          alt="Kapadokya vadilerinde gün doğumu ve sıcak hava balonları"
-          width="1920"
-          height="1312"
+          src="/media/packages/kapadokya/kapadokya-3-gece-kapak-v2.webp"
+          alt="Kapadokya vadisine açılan bir teras ve gün doğumunda balonlar"
+          width="1440"
+          height="810"
           fetchPriority="high"
         />
         <div className="hero-shade" />
         <div className="shell hero-content">
+          <span className="hero-eyebrow">
+            <MapPin size={15} /> KAPADOKYA, TÜRKİYE
+          </span>
           <h1>
-            İyi ki geldim
+            Kapadokya’da
             <br />
-            diyeceğiniz tatiller.
+            <span>uyanmak başka.</span>
           </h1>
           <p>
-            Kapadokya’nın otellerini, rotalarını ve güzel anlarını keşfedin.
+            Taş oteller, gün doğumları ve aklınızda kalacak rotalar.
+            <br className="desktop-break" /> Bir sonraki güzel anınızı bulun.
           </p>
           <Link className="hero-link" to="/rehber">
             Kapadokya’yı keşfet
             <ArrowUpRight size={19} />
           </Link>
+        </div>
+        <div className="hero-caption" aria-hidden="true">
+          <SunHorizon size={25} />
+          <span>
+            Yeni bir gün.
+            <br />
+            <strong>Bambaşka bir manzara.</strong>
+          </span>
         </div>
       </section>
       <div className="shell home-search">
@@ -719,20 +745,49 @@ function Home() {
             <ArrowUpRight />
           </Link>
         </div>
-        <section className="section">
+        <section className="section featured-section">
+          <p className="section-eyebrow">KALMAYA DEĞER YERLER</p>
           <Heading
             title="Kapadokya’da bir yeriniz olsun."
             copy="Taşın hikâyesi, terasın manzarası, güne güzel bir başlangıç."
             to="/oteller"
             label={`${hotels.length} oteli keşfet`}
           />
-          <div className="hotel-grid">
-            {picks.map((h) => (
+          <div className="featured-toolbar">
+            <div
+              className="region-tabs"
+              role="group"
+              aria-label="Öne çıkan otelleri bölgeye göre göster"
+            >
+              {["Tümü", "Göreme", "Ürgüp", "Uçhisar", "Avanos"].map(
+                (region) => (
+                  <button
+                    key={region}
+                    type="button"
+                    aria-pressed={featuredRegion === region}
+                    onClick={() => setFeaturedRegion(region)}
+                  >
+                    {region}
+                  </button>
+                ),
+              )}
+            </div>
+            <span className="swipe-hint">
+              Kaydırarak keşfet <ArrowRight size={15} />
+            </span>
+          </div>
+          <div
+            className="hotel-grid featured-grid"
+            key={featuredRegion}
+            aria-label={`${featuredRegion} otel seçkisi`}
+          >
+            {featured.map((h) => (
               <HotelCard hotel={h} key={h.slug} />
             ))}
           </div>
         </section>
         <section className="section tours-section">
+          <p className="section-eyebrow">BİR VALİZ, BİR SÜRÜ HİKÂYE</p>
           <Heading
             title="Az plan, çok Kapadokya."
             copy="Konaklamadan bölge turuna, aynı yolculukta buluşan deneyimler."
@@ -779,13 +834,14 @@ function Home() {
         </section>
         <HelpStrip />
       </div>
-    </>
+    </div>
   );
 }
 function DestinationSection() {
   const selected = ["Göreme", "Ürgüp", "Uçhisar", "Avanos"];
   return (
-    <section className="section">
+    <section className="section destinations-section">
+      <p className="section-eyebrow">SİZİN KAPADOKYANIZ HANGİSİ?</p>
       <Heading
         title="Her köşesi başka bir hikâye."
         copy="Kalmak istediğiniz yeri seçin, Kapadokya’yı kendi ritminizde yaşayın."
@@ -1260,7 +1316,7 @@ function OfferForm({ item, type = "otel" }) {
             Giriş tarihi
             <DateInput
               required
-              
+
               min={localDate()}
               value={start}
               onChange={(e) => {
@@ -1273,7 +1329,7 @@ function OfferForm({ item, type = "otel" }) {
             Çıkış tarihi
             <DateInput
               required
-              
+
               min={start ? dayAfter(start) : dayAfter(localDate())}
               value={end}
               onChange={(e) => setEnd(e.target.value)}
@@ -1825,7 +1881,10 @@ function RouteEffects() {
     document.title = `${title} | Ekonomikotel`;
     document
       .querySelector('link[rel="canonical"]')
-      ?.setAttribute("href", `https://ekonomikotel.com${path === "/" ? "/" : path + "/"}`);
+      ?.setAttribute(
+        "href",
+        `https://ekonomikotel.com${path === "/" ? "/" : path + "/"}`,
+      );
     if (previous.current !== path) {
       window.scrollTo({ top: 0, behavior: "instant" });
       document.getElementById("main")?.focus({ preventScroll: true });

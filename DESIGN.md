@@ -24,3 +24,6 @@ Details: gallery, unabridged source description, source amenities, location link
 - https://www.etstur.com/ (interaction/layout reference only)
 
 Skill instructions were read from their official repositories in this task. Impeccable's context launcher could not provision its engine in the restricted home directory; existing project files were read directly. The user's explicit competitor-like direction governs the visual system. No persistent global skill installation was made.
+
+## Refinement — 25 September 2026
+The follow-up design uses the existing warm Cappadocia terrace photograph in an inset desktop hero, a shorter destination-led headline, and clearer search mode selection. Featured hotels have working region tabs, larger photography, legible amenity text and real gallery counts. Mobile featured cards scroll horizontally with a visible next card and a scroll hint. Tour packages sit on a warm neutral surface; destination cards use image overlays for stronger geographic discovery. Supplier descriptions and the separate health content are preserved.
