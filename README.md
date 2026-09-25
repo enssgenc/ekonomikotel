@@ -25,6 +25,8 @@ npm start
 - Altı dilli sağlık içeriği ve blog; ana tatil sitesine dönüş bağlantısı.
 - Veritabanından sunucuda oluşturulan güncel sayfalar, 404, dinamik sitemap ve yerel fontlar.
 - Tek yönetici hesabı, otel/tur ekleme-düzenleme, taslak/yayın/arşiv, görsel yükleme, sürüm geçmişi ve JSON dışa aktarma.
+- Oda detayları ve dönem/çocuk yaşına göre gösterge fiyatı, ana sayfa/kampanya yönetimi, müşteri talepleri ve teklif kayıtları.
+- Taslak kopyalama, Excel önizleme/aktarım, toplu durum değişikliği, otomatik taslak kurtarma ve zamanlanmış DB/görsel yedeği.
 
 Kaynak, `enssgenc/ekonomiltatilimv2` reposunun `bbade297e884fe5f67626f9c4b078ff9cb0468c3` commitidir. Özgün içerikler ve görsel eşlemesi `docs/source/` altında korunur. Yeniden içe aktarma için kaynak repoyu kardeş `../source-ett` klasörüne koyup `node scripts/import-catalog.mjs` çalıştırın.
 

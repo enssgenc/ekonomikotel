@@ -26,3 +26,5 @@ Ekonomikotel currently has a maintenance page and an established phone/WhatsApp 
 
 ## Administration
 One administrator manages hotels, tours, media, SEO and publication states. Content changes persist independently of builds. Drafts and private notes remain private; archived pages leave the public catalogue. Starting prices are manually entered with a validity date, not live inventory.
+
+Administrators also manage room galleries/features, date-based nightly prices and child age bands, homepage selections/campaigns, inquiry notes/offers, previewed Excel imports and atomic bulk statuses. Private autosave recovery never publishes. Scheduled local database/upload backups expose verified job results; offsite replication is not configured. Calculations are indicative and never establish room inventory or a reservation.

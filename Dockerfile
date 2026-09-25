@@ -17,6 +17,7 @@ COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/dist ./dist
 COPY --from=build --chown=node:node /app/.ssr ./.ssr
 COPY --from=build --chown=node:node /app/server ./server
+COPY --from=build --chown=node:node /app/src/lib ./src/lib
 COPY --from=build --chown=node:node /app/src/data/catalog.json ./src/data/catalog.json
 RUN mkdir -p /data && chown node:node /data
 USER node

@@ -17,14 +17,20 @@
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
+    "exceljs": "^4.4.0",
     "express": "^5.2.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.0",
-    "zod": "^4.6.5",
-    "sharp": "^0.34.5"
+    "sharp": "^0.35.4",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "vite": "8.3.1"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "11.1.1"
+    }
   }
 }

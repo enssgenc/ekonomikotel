@@ -48,3 +48,17 @@
 - `npm run backup` against QA database: SQLite integrity check `ok`, 132 expected records in the backup.
 - Delivery database: 129 hotels, 2 tours, exactly one administrator; no QA content. Generated credential file is outside Git and mode 0600. Actual local account login verified without logging its password.
 - Docker executable unavailable: container, Coolify persistence and public deployment checks remain release steps, documented in `docs/admin.md`. No live deployment performed.
+
+## Admin extensions — 2026-09-25
+
+- Final `npm run build`, `npm run check`, `git diff --check`: passed. Existing React Router directive/bundle-size warnings remain non-blocking.
+- **34 automated tests passed**, 0 failures/skips: authentication/CSRF, persistence, source preservation, rich rooms, date/age/capacity/minimum-night/currency rules, invalid/overlapping periods, private autosave/version conflicts, independent copies, atomic bulk status, homepage settings/media/internal links/campaign dates, XLSX template/preview/validation/repeat-safe commit, inquiry deduplication/consent/private offer history, backup integrity/SHA-256/coalescing/failure reporting.
+- Test servers need local socket permission. One restricted-sandbox run could not bind temporary ports; the permitted final run passed all 34 tests.
+- `npm audit --omit=dev`: zero reported vulnerabilities after upgrading Sharp and overriding ExcelJS's compatible UUID dependency.
+- Separate QA database/browser: homepage title and ordered hotel selection saved; incomplete new-hotel autosave restored after leaving/re-entering and then saved; existing seasonal price edited and saved; room details inspected on 390px mobile; desktop layout checked at 1280px.
+- Browser: two nights × TRY 2,500 produced TRY 5,000 with nightly detail; fictional inquiry returned reference `EKO-89E9E8471C`; the same inquiry appeared in admin and its contact status/notes persisted. No external message was sent.
+- Browser: automatic backup and manually triggered backup both displayed completed integrity-verified records. Source DB and backup files were independently checked.
+- XLSX parsing/preview/commit passed API integration tests. The in-app browser's filechooser automation timed out, so native file selection and browser upload completion are not claimed as end-to-end verified.
+- A dashboard icon-array regression found during browser testing was corrected; the delivered dashboard was opened successfully after restart.
+- Delivery: backed up real data before restart; compared all 131 content rows (including IDs, statuses, versions and JSON), confirmed unchanged; one administrator retained; existing local login passed. Default 24-hour automatic backup completed with SQLite integrity `ok`. No QA records imported into delivery data.
+- No production deployment. Docker/container rebuild and Coolify volume persistence still require release-environment verification. Offsite backup replication is not configured.

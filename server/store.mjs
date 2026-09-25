@@ -1,3 +1,4 @@
+import { defaultHomepage } from "../src/lib/homepage.js";
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -25,6 +26,14 @@ export function openStore(directory) {
     CREATE TABLE IF NOT EXISTS media (id TEXT PRIMARY KEY, path TEXT NOT NULL UNIQUE, name TEXT NOT NULL, width INTEGER, height INTEGER, bytes INTEGER, source TEXT NOT NULL, created_at TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS audit (id INTEGER PRIMARY KEY AUTOINCREMENT, actor TEXT NOT NULL, action TEXT NOT NULL, target TEXT NOT NULL, created_at TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS login_attempts (key TEXT PRIMARY KEY, attempts INTEGER NOT NULL, reset_at INTEGER NOT NULL);
+    CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, data TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1, updated_at TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS autosaves (user_id TEXT NOT NULL REFERENCES users(id), key TEXT NOT NULL, data TEXT NOT NULL, version INTEGER NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY(user_id,key));
+    CREATE TABLE IF NOT EXISTS leads (id TEXT PRIMARY KEY, reference TEXT NOT NULL UNIQUE, status TEXT NOT NULL, data TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS lead_events (id TEXT PRIMARY KEY, lead_id TEXT NOT NULL REFERENCES leads(id), data TEXT NOT NULL, created_at TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS imports (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), data TEXT NOT NULL, created_at TEXT NOT NULL, consumed_at TEXT);
+    CREATE TABLE IF NOT EXISTS backups (id TEXT PRIMARY KEY, status TEXT NOT NULL, path TEXT, bytes INTEGER, error TEXT, created_at TEXT NOT NULL, completed_at TEXT);
+    CREATE TABLE IF NOT EXISTS public_limits (key TEXT PRIMARY KEY, count INTEGER NOT NULL, reset_at INTEGER NOT NULL);
+    CREATE INDEX IF NOT EXISTS leads_status_date ON leads(status,created_at);
     CREATE INDEX IF NOT EXISTS content_kind_status ON content(kind,status);
     CREATE INDEX IF NOT EXISTS audit_created ON audit(created_at);
   `);
@@ -124,6 +133,10 @@ export function openStore(directory) {
     const result = {
       amenities: sourceCatalog.amenities,
       hero: sourceCatalog.hero,
+      homepage: JSON.parse(
+        db.prepare("SELECT data FROM settings WHERE key='homepage'").get()
+          ?.data || JSON.stringify(defaultHomepage),
+      ),
       hotels: [],
       tours: [],
     };
@@ -134,6 +147,18 @@ export function openStore(directory) {
       .all(previewId || "");
     for (const row of rows)
       result[row.kind === "hotel" ? "hotels" : "tours"].push(publicItem(row));
+    result.homepage.hotelSlugs = result.homepage.hotelSlugs.filter((slug) =>
+      result.hotels.some((h) => h.slug === slug),
+    );
+    result.homepage.tourSlugs = result.homepage.tourSlugs.filter((slug) =>
+      result.tours.some((t) => t.slug === slug),
+    );
+    result.homepage.campaigns = result.homepage.campaigns.filter(
+      (c) =>
+        c.enabled &&
+        (!c.start || c.start <= new Date().toISOString().slice(0, 10)) &&
+        (!c.end || c.end >= new Date().toISOString().slice(0, 10)),
+    );
     if (previewId) result.previewId = previewId;
     return result;
   };

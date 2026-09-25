@@ -15,6 +15,45 @@
 
 İç notlar, taslaklar, arşivler ve hesap bilgileri halka açık katalogdan çıkarılır. İlk açılışta 129 otel ve 2 tur SQLite'a bir kez aktarılır. Sonraki açılışlar/deploylar yönetici değişikliklerini ezmez. `src/data/catalog.json` yalnızca ilk kurulum kaynağıdır; mevcut kayıtlar panelden değiştirilir.
 
+## Dönem fiyatı ve oda detayları
+
+Otel düzenleyicide **Oda tipleri** altında kapasite, metrekare, yatak düzeni, manzara, özellikler ve oda başına 12 fotoğraf girilir. **Dönem fiyatları** sekmesinde oda, tarih aralığı, para birimi, gecelik temel fiyat, fiyata dahil yetişkin sayısı, ilave yetişkin ücreti, minimum gece ve çocuk yaş bantları tanımlanır.
+
+- Dönemin son tarihi **son konaklama gecesidir**; çıkış günü ücretlendirilmez.
+- Temel oda fiyatı dahil yetişkin sayısına kadar aynıdır; daha az yetişkin için otomatik indirim yapılmaz. Fazlası kişi/gece üzerinden eklenir.
+- Çocuk bantları 0–17 yaş arasıdır; ücretsiz bant için ücret 0 girilir. Her çocuk kendi yaş bandına göre gece başına hesaplanır.
+- Aynı odanın etkin dönemleri ve çocuk yaş bantları çakışamaz. Kapasite aşımı, eksik gecelik fiyat/yaş bandı, minimum konaklama ihlali veya konaklama içinde para birimi değişimi varsa toplam üretilmez.
+- Ziyaretçi en çok 90 gece için hesap yapabilir. Sonuç tarih/gece dökümüyle gösterilir; oda stoku ve kesin rezervasyon garantisi değildir. Turların mevcut başlangıç fiyatı/teklif modeli korunur.
+
+## Ana sayfa ve kampanyalar
+
+**Ana sayfa yönetimi** açılış başlığı, açıklama, görsel, alternatif metin ve bağlantıyı yönetir. Yayındaki otel/turlardan en fazla 12'şer seçim sıralanabilir. Özel seçim yoksa mevcut öne çıkan içeriklerden ilk dördü kullanılır. En fazla altı kampanyanın görseli, metni, bağlantısı, etkinlik durumu ve başlangıç/bitiş günleri belirlenir. Tarih aralığı dışındaki kampanyalar halka gösterilmez. Görseller mevcut yerel kütüphaneden, bağlantılar desteklenen iç sayfalardan seçilir.
+
+## Talepler ve teklifler
+
+Otel/tur sayfasındaki **Beni arayın, teklif almak istiyorum** formu ad, telefon, isteğe bağlı e-posta/not, tarih, misafir, varsa oda ve hesaplanan fiyatı kaydeder. İletişim onayı zorunludur; takip numarası üretilir. Aynı gönderimin tekrarında çift kayıt oluşturulmaz. İstek sınırı ve gizli spam alanı bulunur.
+
+Panelde arama ve durum filtresi, müşteri bilgileri, özel görüşme notları, teklif tutarı/para birimi/açıklaması, sonuç ve önceki görüşme kayıtları bulunur. Durumlar Yeni → Görüşülüyor → Teklif gönderildi → Sonuçlandı şeklindedir. Sonuçlandırmada sonuç, teklif gönderildi durumunda açıklama gerekir. **Panel mesaj göndermez**: müşteriye ilettiğiniz teklifi burada kaydedersiniz. Talepler halka açık katalogda görünmez.
+
+## Kopyalama, Excel ve toplu işlemler
+
+- Kaydedilmiş otel veya tur **Kopyala** ile yeni, benzersiz adresli bir taslak olur. Kaynak içeriği değiştirmez; özel notlar kopyalanmaz.
+- Liste ekranında sayfayı seçip istemediğiniz satırları kaldırarak toplu taslak/yayın/arşiv işlemi uygulayın. Bir kayıt geçersiz veya başka sekmede değişmişse grubun tamamı reddedilir.
+- **Excel ile aktarım** ekranından `.xlsx` şablonunu indirin. En fazla 2 MB, ilk sayfada 200 kayıt/20 sütun desteklenir. Sütun açıklamaları şablonun ikinci sayfasındadır.
+- `tur` alanı `hotel` veya `tour`; `ad` ve `sayfa_adresi` zorunludur. Liste alanlarında `|`, tur programında JSON dizisi kullanılır. Görseller kütüphanede mevcut yerel yollar olmalıdır; uzak URL indirilmez.
+- Önizleme satır bazında hataları gösterir. Seçilen geçerli satırlar birlikte **taslak** aktarılır; mevcut kayıtların üzerine yazılmaz. Önizleme 30 dakika geçerlidir; aynı aktarımın tekrar gönderimi çift kayıt üretmez. Formüllü veya karmaşık hücreler kabul edilmez.
+- Oda ve dönem fiyatları aktarım sonrası düzenleyicide tamamlanır.
+
+## Otomatik taslak kurtarma
+
+Otel/tur düzenleyici, değişiklikten yaklaşık bir saniye sonra yöneticiye özel kurtarma kopyası tutar. Bu kopya yayındaki kaydı değiştirmez. Forma yeniden girildiğinde kopyayı yükleme veya silme seçeneği görünür. Başarılı normal kayıttan sonra kurtarma kopyası temizlenir. İki sekme çakışması bildirilir; otomatik olarak diğer sekmenin üstüne yazılmaz. Ağ yokken çevrimdışı kayıt yapılmaz; hata ve kaydedilmemiş değişiklik uyarısı gösterilir. Sayfayı kapatmadan kayıt durumunu kontrol edin.
+
+## Otomatik yedekleme
+
+**Yedekleme** ekranında varsayılan olarak 24 saatte bir yedekleme açıktır; 6/12/24 saat seçilebilir veya kapatılabilir. Zamanlayıcı uygulama sunucusu çalışırken aktiftir; açılışta zamanı geçmiş yedeği alır. **Şimdi yedekle** işi başlatır; ekranda gerçek tamamlanma/hata durumu ve son 20 iş görünür.
+
+Her tamamlanan yedek SQLite online kopyası, `uploads/` ve dosya boyutu/SHA-256 özetleri içeren `manifest.json` barındırır. DB bütünlüğü kontrol edilir, tamamlanmamış klasörler `.partial` kalır. Aynı anda bir yedek çalışır. Varsayılan dizin `DATA_DIR/backups`; isteğe bağlı `BACKUP_DIR` ile ayrı kalıcı disk seçilir. Yedekler otomatik silinmez. Sunucu dışına kopyalama yapılandırılmamıştır; aynı disk yedeği disk arızasına karşı korumaz. Aşağıdaki terminal komutu bağımsız manuel kopyadır; panel geçmişi ve manifest üretmez.
+
 ## Yerel kurulum
 
 Node.js 24.14+ gerekir (yerleşik SQLite kullanılır).
@@ -62,4 +101,4 @@ Geri yükleme: uygulamayı durdurun; mevcut `/data` dizinini ayrı bir yedeğe t
 
 ## Kapsam
 
-Panel içerik ve yayın yönetimidir. Oda/gece stokları, kesin müsaitlik, canlı tedarikçi fiyatları, ödeme, rezervasyon onayı, ekip yetkilendirmesi veya otomatik fiyat senkronizasyonu içermez. WhatsApp teklif akışı korunur. Sağlık turizmi bölümü bu panelde düzenlenmez.
+Panel içerik, yayın, dönem fiyatı ve teklif talebi yönetimidir. Oda/gece stokları, kesin müsaitlik, canlı tedarikçi fiyatları, ödeme, rezervasyon onayı, ekip yetkilendirmesi veya otomatik fiyat senkronizasyonu içermez. WhatsApp teklif akışı korunur. Sağlık turizmi bölümü bu panelde düzenlenmez.

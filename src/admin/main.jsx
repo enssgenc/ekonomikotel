@@ -32,6 +32,11 @@ import {
   FloppyDisk,
   Globe,
   NotePencil,
+  Copy,
+  Envelope,
+  House,
+  Database,
+  FileXls,
   Archive,
   ArrowUp,
   ArrowDown,
@@ -44,6 +49,17 @@ import {
 } from "@phosphor-icons/react";
 import { api, setCsrf } from "./api.js";
 import "./styles.css";
+import {
+  RoomDetails,
+  RatesEditor,
+  HomepagePage,
+  LeadsPage,
+  LeadDetail,
+  ImportsPage,
+  BackupsPage,
+  BulkActions,
+} from "./Extensions.jsx";
+import { useAutosave } from "./useAutosave.js";
 
 let hasUnsavedChanges = false;
 const statusNames = {
@@ -473,7 +489,7 @@ function ContentList({ kind }) {
   const [q, setQ] = useState(""),
     [status, setStatus] = useState(""),
     [page, setPage] = useState(1);
-  const { data, error, loading } = useData(
+  const { data, error, loading, reload } = useData(
     `/content?kind=${kind}&status=${status}&q=${encodeURIComponent(q)}&page=${page}`,
   );
   return (
@@ -522,6 +538,9 @@ function ContentList({ kind }) {
         {data && <span>{data.total} kayıt</span>}
       </div>
       <ErrorBox error={error} />
+      {!loading && !!data?.items?.length && (
+        <BulkActions items={data.items} onComplete={reload} />
+      )}
       {loading ? (
         <Loading />
       ) : data?.items.length ? (
@@ -766,7 +785,7 @@ function Modal({ title, close, children, footer }) {
     </dialog>
   );
 }
-function MediaPicker({ initial, onDone, close }) {
+function MediaPicker({ initial, onDone, close, max = 60 }) {
   const [selected, setSelected] = useState(initial),
     [revision, setRevision] = useState(0);
   return (
@@ -775,7 +794,9 @@ function MediaPicker({ initial, onDone, close }) {
       close={close}
       footer={
         <>
-          <span>{selected.length} / 60 görsel seçildi</span>
+          <span>
+            {selected.length} / {max} görsel seçildi
+          </span>
           <Button onClick={() => onDone(selected)}>
             Seçilenleri kullan
             <CheckCircle />
@@ -787,7 +808,7 @@ function MediaPicker({ initial, onDone, close }) {
         <p>JPG, PNG veya WebP · en fazla 12 MB / dosya</p>
         <UploadButton
           onUploaded={(image) => {
-            setSelected((s) => (s.length < 60 ? [...s, image.path] : s));
+            setSelected((s) => (s.length < max ? [...s, image.path] : s));
             setRevision((v) => v + 1);
           }}
         />
@@ -800,7 +821,7 @@ function MediaPicker({ initial, onDone, close }) {
           setSelected((s) =>
             s.includes(path)
               ? s.filter((p) => p !== path)
-              : s.length < 60
+              : s.length < max
                 ? [...s, path]
                 : s,
           )
@@ -931,6 +952,7 @@ function Editor() {
     [busy, setBusy] = useState(false),
     [notice, setNotice] = useState(""),
     [picker, setPicker] = useState(false),
+    [roomPicker, setRoomPicker] = useState(null),
     [slugTouched, setSlugTouched] = useState(false),
     [revisions, setRevisions] = useState([]);
   const { data: dashboard } = useData("/dashboard");
@@ -963,6 +985,7 @@ function Editor() {
     };
   }, [id, kind]);
   const dirty = !!record && JSON.stringify(record) !== baseline;
+  const autosave = useAutosave(id || `new-${kind}`, record, dirty, setRecord);
   const navigatingAfterSave = useRef(false);
   const blocker = useBlocker(() => dirty && !navigatingAfterSave.current);
   useEffect(() => {
@@ -1030,10 +1053,12 @@ function Editor() {
     setError(null);
     setNotice("");
     try {
+      await autosave.pause();
       const value = await api(id ? `/content/${id}` : "/content", {
         method: id ? "PUT" : "POST",
         body: record,
       });
+      await autosave.clear();
       setRecord(value);
       setBaseline(JSON.stringify(value));
       setNotice(
@@ -1048,6 +1073,7 @@ function Editor() {
         navigate(`/admin/icerik/${value.id}`, { replace: true });
       }
     } catch (e) {
+      autosave.resume();
       setError(e);
     } finally {
       setBusy(false);
@@ -1057,6 +1083,7 @@ function Editor() {
     ["general", "Genel bilgiler"],
     ["media", "Görseller"],
     [hotel ? "rooms" : "program", hotel ? "Oda tipleri" : "Tur programı"],
+    ...(hotel ? [["rates", "Dönemsel fiyatlar"]] : []),
     ["services", hotel ? "Olanaklar" : "Hizmetler"],
     ...(!hotel ? [["terms", "Rotalar ve koşullar"]] : []),
     ["seo", "Fiyat ve SEO"],
@@ -1095,6 +1122,30 @@ function Editor() {
       >
         <Status status={record.status} />
         {id && (
+          <Button
+            secondary
+            onClick={async () => {
+              if (
+                !window.confirm(
+                  "Kaydedilmiş sürümden taslak kopya oluşturulsun mu?",
+                )
+              )
+                return;
+              try {
+                const copy = await api(`/content/${id}/duplicate`, {
+                  method: "POST",
+                });
+                navigate(`/admin/icerik/${copy.id}`);
+              } catch (e) {
+                setError(e);
+              }
+            }}
+          >
+            <Copy />
+            Kopyala
+          </Button>
+        )}
+        {id && (
           <a
             href={`/${hotel ? "oteller" : "turlar"}/${data.slug}?onizleme=${id}`}
             className="a-btn secondary"
@@ -1112,6 +1163,31 @@ function Editor() {
           <CheckCircle />
           {notice}
         </div>
+      )}
+      {autosave.recovery && (
+        <div className="a-recovery" role="status">
+          <div>
+            <strong>Otomatik kaydedilmiş bir taslak var.</strong>
+            <p>
+              {dateText(autosave.recovery.updatedAt)} · Bu taslak ziyaretçilere
+              gösterilmez.
+              {record.version !== autosave.recovery.data.version
+                ? " Asıl kayıt daha yeni; yükledikten sonra değişiklikleri kontrol edin."
+                : ""}
+            </p>
+          </div>
+          <Button secondary onClick={autosave.restore}>
+            Taslağı forma yükle
+          </Button>
+          <Button secondary onClick={autosave.discard}>
+            Taslağı kaldır
+          </Button>
+        </div>
+      )}
+      {autosave.message && (
+        <p className="a-autosave" role="status">
+          {autosave.message}
+        </p>
       )}
       <div className="a-editor-layout">
         <div className="a-editor-main">
@@ -1399,6 +1475,11 @@ function Editor() {
                         onChange={(v) => changeItem("rooms", i, { concept: v })}
                       />
                     </div>
+                    <RoomDetails
+                      room={room}
+                      onChange={(patch) => changeItem("rooms", i, patch)}
+                      onImages={() => setRoomPicker(i)}
+                    />
                     <Field
                       label="Oda açıklaması"
                       textarea
@@ -1416,6 +1497,13 @@ function Editor() {
                   />
                 )}
               </Section>
+            )}
+            {tab === "rates" && (
+              <RatesEditor
+                rooms={data.rooms}
+                plans={data.ratePlans || []}
+                onChange={(v) => field("ratePlans", v)}
+              />
             )}
             {tab === "program" && (
               <Section
@@ -1815,7 +1903,8 @@ function Editor() {
               Ana sayfada öne çıkar
             </label>
             <small className="a-muted">
-              Vitrinde ilk dört uygun içerik gösterilir.
+              Ana sayfa yönetiminden seçilen sıra uygulanır. Özel seçim yoksa
+              ilk dört uygun içerik gösterilir.
             </small>
             <div className="a-checklist">
               <h3>Yayın öncesi</h3>
@@ -1856,6 +1945,17 @@ function Editor() {
               : "Değişiklikleri kaydet"}
         </Button>
       </div>
+      {roomPicker !== null && (
+        <MediaPicker
+          initial={data.rooms[roomPicker]?.gallery || []}
+          max={12}
+          close={() => setRoomPicker(null)}
+          onDone={(gallery) => {
+            changeItem("rooms", roomPicker, { gallery });
+            setRoomPicker(null);
+          }}
+        />
+      )}
       {picker && (
         <MediaPicker
           initial={data.gallery || []}
@@ -2018,7 +2118,11 @@ function Shell({ session, onLogout }) {
     ["/admin", SquaresFour, "Genel bakış"],
     ["/admin/oteller", Bed, "Oteller"],
     ["/admin/turlar", SuitcaseRolling, "Turlar"],
+    ["/admin/talepler", Envelope, "Talepler ve teklifler"],
+    ["/admin/anasayfa", House, "Ana sayfa yönetimi"],
     ["/admin/gorseller", Images, "Görsel kütüphanesi"],
+    ["/admin/aktarim", FileXls, "Excel ile aktarım"],
+    ["/admin/yedekleme", Database, "Yedekleme"],
     ["/admin/gecmis", ClockCounterClockwise, "İşlem geçmişi"],
     ["/admin/ayarlar", Gear, "Ayarlar"],
   ];
@@ -2093,6 +2197,14 @@ function Shell({ session, onLogout }) {
             />
             <Route path="yeni/:kind" element={<Editor />} />
             <Route path="icerik/:id" element={<Editor />} />
+            <Route
+              path="anasayfa"
+              element={<HomepagePage MediaPicker={MediaPicker} />}
+            />
+            <Route path="talepler" element={<LeadsPage />} />
+            <Route path="talepler/:id" element={<LeadDetail />} />
+            <Route path="aktarim" element={<ImportsPage />} />
+            <Route path="yedekleme" element={<BackupsPage />} />
             <Route path="gorseller" element={<MediaPage />} />
             <Route path="gecmis" element={<Audit />} />
             <Route

@@ -1,3 +1,5 @@
+import InquiryPanel from "./InquiryPanel.jsx";
+import { defaultHomepage } from "./lib/homepage.js";
 import React, {
   createContext,
   useContext,
@@ -682,7 +684,7 @@ function TourCard({ tour }) {
   );
 }
 function Home() {
-  const { hotels, tours, hero } = useCatalog();
+  const { hotels, tours, hero, homepage = defaultHomepage } = useCatalog();
   const [featuredRegion, setFeaturedRegion] = useState("Tümü");
   const picks = [
     "kayakapi-premium-caves-cappadocia",
@@ -692,11 +694,22 @@ function Home() {
   ]
     .map((id) => hotels.find((h) => h.slug === id))
     .filter(Boolean);
-  const selectedPicks = hotels.filter((h) => h.featured);
+  const configuredHotels = (homepage.hotelSlugs || [])
+    .map((slug) => hotels.find((h) => h.slug === slug))
+    .filter(Boolean);
+  const selectedPicks = configuredHotels.length
+    ? configuredHotels
+    : hotels.filter((h) => h.featured);
+  const configuredTours = (homepage.tourSlugs || [])
+    .map((slug) => tours.find((t) => t.slug === slug))
+    .filter(Boolean);
+  const homeTours = configuredTours.length
+    ? configuredTours
+    : tours.filter((t) => t.featured !== false).slice(0, 4);
   const featured =
     featuredRegion === "Tümü"
       ? selectedPicks.length
-        ? selectedPicks.slice(0, 4)
+        ? selectedPicks.slice(0, configuredHotels.length ? 12 : 4)
         : picks.length
           ? picks
           : hotels.slice(0, 4)
@@ -708,8 +721,8 @@ function Home() {
       <section className="hero">
         <img
           className="hero-photo"
-          src="/media/packages/kapadokya/kapadokya-3-gece-kapak-v2.webp"
-          alt="Kapadokya vadisine açılan bir teras ve gün doğumunda balonlar"
+          src={homepage.image}
+          alt={homepage.imageAlt}
           width="1440"
           height="810"
           fetchPriority="high"
@@ -717,21 +730,18 @@ function Home() {
         <div className="hero-shade" />
         <div className="shell hero-content">
           <span className="hero-eyebrow">
-            <MapPin size={15} /> KAPADOKYA, TÜRKİYE
+            <MapPin size={15} /> {homepage.eyebrow}
           </span>
           <h1>
-            Kapadokya’da
+            {homepage.title}
             <br />
-            <span>uyanmak başka.</span>
+            <span>{homepage.accent}</span>
           </h1>
-          <p>
-            Taş oteller, gün doğumları ve aklınızda kalacak rotalar.
-            <br className="desktop-break" /> Bir sonraki güzel anınızı bulun.
-          </p>
-          <Link className="hero-link" to="/rehber">
-            Kapadokya’yı keşfet
+          <p>{homepage.description}</p>
+          <a className="hero-link" href={homepage.link}>
+            {homepage.linkLabel}
             <ArrowUpRight size={19} />
-          </Link>
+          </a>
         </div>
         <div className="hero-caption" aria-hidden="true">
           <SunHorizon size={25} />
@@ -746,6 +756,23 @@ function Home() {
         <SearchBox />
       </div>
       <div className="shell">
+        {!!homepage.campaigns?.length && (
+          <section className="home-campaigns" aria-label="Kampanyalar">
+            {homepage.campaigns.map((c) => (
+              <article key={c.id}>
+                <img src={c.image} alt={c.title} loading="lazy" />
+                <div>
+                  <h2>{c.title}</h2>
+                  <p>{c.description}</p>
+                  <a href={c.link}>
+                    {c.label}
+                    <ArrowUpRight size={18} />
+                  </a>
+                </div>
+              </article>
+            ))}
+          </section>
+        )}
         <div className="discovery-strip">
           <Link to="/oteller">
             <Bed />
@@ -822,12 +849,9 @@ function Home() {
             label="Turları keşfet"
           />
           <div className="tour-grid">
-            {tours
-              .filter((t) => t.featured !== false)
-              .slice(0, 4)
-              .map((t) => (
-                <TourCard tour={t} key={t.slug} />
-              ))}
+            {homeTours.map((t) => (
+              <TourCard tour={t} key={t.slug} />
+            ))}
           </div>
         </section>
         <DestinationSection />
@@ -1457,6 +1481,15 @@ function OfferForm({ item, type = "otel" }) {
           </p>
         )}
       </form>
+      <InquiryPanel
+        item={item}
+        type={type}
+        start={start}
+        end={end}
+        adults={adults}
+        children={children}
+        ages={ages}
+      />
       <p className="offer-disclaimer">
         <Info size={17} />
         Bu işlem rezervasyon oluşturmaz. Kesin fiyat ve müsaitlik görüşme
@@ -1542,7 +1575,42 @@ function DetailPage({ type = "otel" }) {
                           <Users size={17} /> En fazla {room.capacity} kişi
                           {room.concept ? ` · ${room.concept}` : ""}
                         </p>
+                        <p>
+                          {[
+                            room.area ? `${room.area} m²` : null,
+                            room.bedType,
+                            room.view,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </p>
                         {room.description && <p>{room.description}</p>}
+                        {!!room.features?.length && (
+                          <ul>
+                            {room.features.map((f, n) => (
+                              <li key={n}>{f}</li>
+                            ))}
+                          </ul>
+                        )}
+                        {!!room.gallery?.length && (
+                          <div className="room-photo-strip">
+                            {room.gallery.map((p, n) => (
+                              <a
+                                href={p}
+                                key={p}
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label={`${room.name}, ${n + 1}. fotoğrafı büyüt`}
+                              >
+                                <img
+                                  src={p}
+                                  alt={`${room.name}, ${n + 1}. fotoğraf`}
+                                  loading="lazy"
+                                />
+                              </a>
+                            ))}
+                          </div>
+                        )}
                       </article>
                     ))}
                   </div>

@@ -1,3 +1,4 @@
+import { publicExtensions, adminExtensions } from "./extensions.mjs";
 import express from "express";
 import { randomUUID } from "node:crypto";
 import { readFile, writeFile, unlink } from "node:fs/promises";
@@ -26,6 +27,7 @@ const jsonForHtml = (value) =>
     .replace(/\u2029/g, "\\u2029");
 export function createApp({
   store,
+  backups,
   origin = "http://127.0.0.1:4173",
   secure = false,
   dist = resolve("dist"),
@@ -62,6 +64,7 @@ export function createApp({
   app.get("/api/catalog", (req, res) =>
     res.set("Cache-Control", "no-store").json(store.catalog()),
   );
+  publicExtensions(app, store, origin);
   app.use("/api/admin", express.json({ limit: "1mb" }));
   app.post("/api/admin/login", auth.sameOrigin, auth.login);
   app.use("/api/admin", auth.requireSession);
@@ -396,6 +399,7 @@ export function createApp({
     auth.clear(res);
     res.json({ ok: true, relogin: true });
   });
+  adminExtensions(app, store, backups);
   app.use("/api", (req, res) =>
     res.status(404).json({ error: "Uç nokta bulunamadı." }),
   );
