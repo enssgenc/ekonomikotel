@@ -1,0 +1,369 @@
+[
+  {
+    "slug": "kapadokya-tatil-standart-2-gece",
+    "title": "Kapadokya 2 Gece 3 Gün Tatil Paketi",
+    "category": "kapadokya-tatil",
+    "city": "Nevşehir · Kapadokya",
+    "duration": "2 Gece 3 Gün",
+    "transport": "Kendi imkanıyla",
+    "concept": "Genel Konaklama · Oda + Kahvaltı",
+    "img": "/assets/packages/kapadokya/kapadokya-2-gece-kapak-v2.webp",
+    "gallery": [
+      "/assets/packages/kapadokya/kapadokya-2-gece-kapak-v2.webp"
+    ],
+    "shortDesc": "İki kişilik Kapadokya 2 gece 3 gün paketi; genel konaklama, kahvaltı, 15 kişilik VIP araçla rehberli tam gün Kırmızı Tur (Red Tour), müze girişleri, öğle yemeği, ATV safari ve Türk Gecesi dahil.",
+    "price": 18000,
+    "priceUnit": "2 kişilik toplam fiyat",
+    "priceNote": "İki kişi için toplam başlangıç fiyatıdır · tarih, otel ve ek hizmetlere göre değişir",
+    "hotelBlurb": "Genel Konaklama: Otel, seçilen tarihteki müsaitliğe göre belirlenir; yer bulunamazsa eşdeğer otel atanır. Kesin otel adı rezervasyon onayı ve voucher aşamasında paylaşılır.",
+    "includes": [
+      "Genel Konaklama kapsamında 2 gece konaklama",
+      "Her sabah açık büfe kahvaltı",
+      "Tam Gün Kırmızı Tur (Red Tour) — Uçhisar Kalesi, Zelve Açık Hava Müzesi, Paşabağ (Rahipler Vadisi), Avanos Çömlek Atölyesi, Devrent (Hayal Vadisi), Aşk Vadisi",
+      "Tam gün tur boyunca 15 kişilik VIP araçla otelden alınış ve otele bırakılış",
+      "Tam gün turda öğle yemeği ile programdaki müze ve ören yeri giriş biletleri",
+      "Avanos’ta çanak çömlek yapım atölyesi",
+      "ATV safari turu — peribacaları eteklerinde, otelden alınıp bırakılır",
+      "Gün doğumunda peribacaları üzerinde balon kalkışı izleme",
+      "Türk Gecesi — yaklaşık 20:00–00:00/01:00; yemek, mezeler, sınırsız yerli alkollü ve alkolsüz içecekler, canlı müzik ve yöresel gösteriler"
+    ],
+    "excludes": [
+      "Sıcak hava balonu uçuşu — opsiyonel, talep üzerine ayrı ücretle düzenlenir",
+      "Profesyonel fotoğraf & video çekimi — opsiyonel",
+      "Şehirlerarası ulaşım (Kapadokya'ya geliş-dönüş)",
+      "Öğle ve akşam yemekleri (Türk Gecesi hariç)",
+      "Şahsi harcamalar"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Otele Giriş · ATV Safari",
+        "text": "14:00 itibarıyla otele giriş ve odanıza yerleşme. Öğleden sonra rehberli ATV safari; güvenlik ekipmanları ile otelden alınış ve otele bırakılış dahildir. Akşam serbest zaman."
+      },
+      {
+        "day": 2,
+        "title": "Tam Gün Kırmızı Tur (Red Tour) · Türk Gecesi",
+        "text": "Kahvaltının ardından 15 kişilik VIP araçla, profesyonel rehber eşliğinde standart tam gün Kırmızı Tur (Red Tour): Uçhisar Kalesi, Zelve Açık Hava Müzesi, Paşabağ (Rahipler Vadisi), Avanos Çömlek Atölyesi, Devrent (Hayal Vadisi), Aşk Vadisi. Öğle yemeği, programdaki müze ve ören yeri giriş biletleri, çanak çömlek atölyesi ile otelden alınış ve otele bırakılış dahildir. Mix Tur, Yeşil Tur veya Sunset Tur talep edilebilir; alternatif rotalarda müsaitlik ve fiyat farkı rezervasyon onayında netleşir. Yaklaşık 20:00’de başlayan Türk Gecesi programı, program akışına göre 00:00–01:00 arasında sona erer. Mağara restoranda yemek, meze çeşitleri, sınırsız yerli alkollü ve alkolsüz içecekler, canlı müzik ve yöresel gösteriler dahildir; programın ardından otele dönüş sağlanır."
+      },
+      {
+        "day": 3,
+        "title": "Kahvaltı · Serbest Zaman · Çıkış",
+        "text": "Kahvaltı ve serbest zamanın ardından en geç 12:00’de otelden çıkışla program sona erer."
+      }
+    ],
+    "hotelGallery": [],
+    "terms": [
+      {
+        "title": "Tur Programı Süresi ve İçeriği",
+        "items": [
+          "Paket 2 gece 3 gün konaklama içerir. Standart tam gün Kırmızı Tur (Red Tour), ATV safari, Türk Gecesi ve Avanos çanak çömlek yapım atölyesi programda birer kez uygulanır; her gün tekrarlanmaz."
+        ]
+      },
+      {
+        "title": "Tur Rotası Seçimi",
+        "items": [
+          "Paketin standart tam gün tur rotası Kırmızı Tur (Red Tour) rotasıdır.",
+          "Mix Tur, Yeşil Tur (Green Tour) veya Echoes of Cappadocia Sunset Tur alternatif olarak talep edilebilir.",
+          "Alternatif rotalar müsaitliğe bağlıdır; oluşabilecek fiyat farkı rezervasyon onayından önce misafire bildirilir."
+        ]
+      },
+      {
+        "title": "Konaklama Detayları",
+        "items": [
+          "Konaklama voucher üzerinde “Genel Konaklama” olarak gösterilir. Otel müsaitliğe göre belirlenir; gerektiğinde eşdeğer otel atanır.",
+          "Kesin otel adı rezervasyon onayında paylaşılır ve voucher üzerine işlenir."
+        ]
+      },
+      {
+        "title": "Başlangıç Fiyatı",
+        "items": [
+          "Gösterilen tutar iki kişinin toplam başlangıç fiyatıdır; kişi başı fiyat değildir. Tarih, seçilen otel veya oda, kişi sayısı, çocuk yaşları ve ek hizmetlere göre nihai fiyat değişebilir."
+        ]
+      },
+      {
+        "title": "Çocuk Fiyatları",
+        "items": [
+          "Çocuk ücretleri yaşa ve atanacak otelin politikasına göre hesaplanır. Kesin çocuk fiyatı, formdaki yaş bilgileri incelendikten sonra teklifte bildirilir."
+        ]
+      },
+      {
+        "title": "İptal ve İade Koşulları",
+        "items": [
+          "Rezervasyon iptal/değişiklik talepleri otele giriş tarihinden 72 saat (3 gün) öncesine kadar yapılabilir; bu süre içinde koşulsuz %100 ücretsiz iade garantisi sunulur."
+        ]
+      },
+      {
+        "title": "Program Değişikliği",
+        "items": [
+          "Belirtilen saatler normal hava ve yol koşullarına göre planlanmıştır. Rehberimiz, programa sadık kalmak kaydıyla gerekli durumlarda akışı değiştirebilir."
+        ]
+      },
+      {
+        "title": "Sorumluluk ve Kayıp Eşya",
+        "items": [
+          "Seyahat süresince araçlarda ve konaklama tesislerinde unutulan veya kaybolan eşyalardan acentemiz sorumlu değildir."
+        ]
+      }
+    ],
+    "reviews": [],
+    "reviewsSource": null,
+    "contact": {
+      "phone": "+905467948749",
+      "phoneDisplay": "0546 794 87 49",
+      "whatsapp": "+905467948749",
+      "whatsappDisplay": "0546 794 87 49",
+      "whatsappE164": "905467948749"
+    },
+    "contactNote": "Kapadokya turları hakkında bilgi ve rezervasyon için 0546 794 87 49 numarasıyla iletişime geçin.",
+    "tourRoutes": [
+      {
+        "key": "red-tour",
+        "name": "Kırmızı Tur (Red Tour)",
+        "badge": "Fiyata dahil standart tur",
+        "isDefault": true,
+        "stops": [
+          "Uçhisar Kalesi",
+          "Zelve Açık Hava Müzesi",
+          "Paşabağ (Rahipler Vadisi)",
+          "Avanos Çömlek Atölyesi",
+          "Devrent (Hayal Vadisi)",
+          "Aşk Vadisi"
+        ]
+      },
+      {
+        "key": "mix-tour",
+        "name": "Mix Tur",
+        "badge": "Alternatif gezi paketi",
+        "stops": [
+          "Uçhisar Kalesi",
+          "Zelve Açık Hava Müzesi",
+          "Paşabağ (Rahipler Vadisi)",
+          "Avanos Çömlek Atölyesi",
+          "Devrent (Hayal Vadisi)",
+          "Aşk Vadisi",
+          "Kaymaklı Yeraltı Şehri"
+        ]
+      },
+      {
+        "key": "green-tour",
+        "name": "Yeşil Tur (Green Tour)",
+        "badge": "Alternatif gezi paketi",
+        "stops": [
+          "Göreme Panorama",
+          "Güvercinlik Vadisi",
+          "Oniks (Taş) Atölyesi",
+          "Kaymaklı Yeraltı Şehri",
+          "Ihlara Vadisi (Yürüyüş)",
+          "Selime Manastırı"
+        ]
+      },
+      {
+        "key": "sunset-tour",
+        "name": "Echoes of Cappadocia Sunset Tur",
+        "badge": "Alternatif gezi paketi",
+        "stops": [
+          "Aşk Vadisi",
+          "Güllüdere ve Kızılçukur Vadisi",
+          "Canlı DJ Performansı (Sessiz Parti)",
+          "Yöresel Şarap İkramı"
+        ]
+      }
+    ],
+    "ogImage": "/assets/packages/kapadokya/kapadokya-2-gece-og-v2.webp",
+    "seoImages": [
+      "/assets/packages/kapadokya/kapadokya-2-gece-kare-v2.webp",
+      "/assets/packages/kapadokya/kapadokya-2-gece-4x3-v2.webp",
+      "/assets/packages/kapadokya/kapadokya-2-gece-kapak-v2.webp"
+    ],
+    "imageAlt": "Kapadokya vadisinde iki yetişkinin iki kişilik ATV ile safari yaptığı gün batımı manzarası",
+    "seoUpdatedAt": "2026-08-24T14:21:38+03:00",
+    "startingPrice": true,
+    "packageNights": 2
+  },
+  {
+    "slug": "kapadokya-tatil-standart-3-gece",
+    "title": "Kapadokya 3 Gece 4 Gün Tatil Paketi",
+    "category": "kapadokya-tatil",
+    "city": "Nevşehir · Kapadokya",
+    "duration": "3 Gece 4 Gün",
+    "transport": "Kendi imkanıyla",
+    "concept": "Genel Konaklama · Oda + Kahvaltı",
+    "img": "/assets/packages/kapadokya/kapadokya-3-gece-kapak-v2.webp",
+    "gallery": [
+      "/assets/packages/kapadokya/kapadokya-3-gece-kapak-v2.webp"
+    ],
+    "shortDesc": "İki kişilik Kapadokya 3 gece 4 gün paketi; genel konaklama, kahvaltı, 15 kişilik VIP araçla rehberli tam gün Kırmızı Tur (Red Tour), müze girişleri, öğle yemeği, ATV safari ve Türk Gecesi dahil.",
+    "price": 22500,
+    "priceUnit": "2 kişilik toplam fiyat",
+    "priceNote": "İki kişi için toplam başlangıç fiyatıdır · tarih, otel ve ek hizmetlere göre değişir",
+    "hotelBlurb": "Genel Konaklama: Otel, seçilen tarihteki müsaitliğe göre belirlenir; yer bulunamazsa eşdeğer otel atanır. Kesin otel adı rezervasyon onayı ve voucher aşamasında paylaşılır.",
+    "includes": [
+      "Genel Konaklama kapsamında 3 gece konaklama",
+      "Her sabah açık büfe kahvaltı",
+      "Tam Gün Kırmızı Tur (Red Tour) — Uçhisar Kalesi, Zelve Açık Hava Müzesi, Paşabağ (Rahipler Vadisi), Avanos Çömlek Atölyesi, Devrent (Hayal Vadisi), Aşk Vadisi",
+      "Tam gün tur boyunca 15 kişilik VIP araçla otelden alınış ve otele bırakılış",
+      "Tam gün turda öğle yemeği ile programdaki müze ve ören yeri giriş biletleri",
+      "Avanos’ta çanak çömlek yapım atölyesi",
+      "ATV safari turu — peribacaları eteklerinde, otelden alınıp bırakılır",
+      "Gün doğumunda peribacaları üzerinde balon kalkışı izleme",
+      "Türk Gecesi — yaklaşık 20:00–00:00/01:00; yemek, mezeler, sınırsız yerli alkollü ve alkolsüz içecekler, canlı müzik ve yöresel gösteriler"
+    ],
+    "excludes": [
+      "Sıcak hava balonu uçuşu — opsiyonel, talep üzerine ayrı ücretle düzenlenir",
+      "Profesyonel fotoğraf & video çekimi — opsiyonel",
+      "Şehirlerarası ulaşım (Kapadokya'ya geliş-dönüş)",
+      "Öğle ve akşam yemekleri (Türk Gecesi hariç)",
+      "Şahsi harcamalar"
+    ],
+    "itinerary": [
+      {
+        "day": 1,
+        "title": "Otele Giriş · ATV Safari",
+        "text": "14:00 itibarıyla otele giriş ve odanıza yerleşme. Öğleden sonra rehberli ATV safari; güvenlik ekipmanları ile otelden alınış ve otele bırakılış dahildir. Akşam serbest zaman."
+      },
+      {
+        "day": 2,
+        "title": "Balon Kalkışını İzleme · Tam Gün Kırmızı Tur (Red Tour)",
+        "text": "Gün doğumunda balon kalkışını izleme. Kahvaltının ardından 15 kişilik VIP araçla, profesyonel rehber eşliğinde standart tam gün Kırmızı Tur (Red Tour): Uçhisar Kalesi, Zelve Açık Hava Müzesi, Paşabağ (Rahipler Vadisi), Avanos Çömlek Atölyesi, Devrent (Hayal Vadisi), Aşk Vadisi. Öğle yemeği, programdaki müze ve ören yeri giriş biletleri, çanak çömlek atölyesi ile otelden alınış ve otele bırakılış dahildir. Mix Tur, Yeşil Tur veya Sunset Tur talep edilebilir; alternatif rotalarda müsaitlik ve fiyat farkı rezervasyon onayında netleşir."
+      },
+      {
+        "day": 3,
+        "title": "Serbest Zaman · Türk Gecesi",
+        "text": "Kahvaltının ardından bölgede serbest zaman. Yaklaşık 20:00’de başlayan Türk Gecesi programı, program akışına göre 00:00–01:00 arasında sona erer. Mağara restoranda yemek, meze çeşitleri, sınırsız yerli alkollü ve alkolsüz içecekler, canlı müzik ve yöresel gösteriler dahildir; programın ardından otele dönüş sağlanır."
+      },
+      {
+        "day": 4,
+        "title": "Kahvaltı · Serbest Zaman · Çıkış",
+        "text": "Kahvaltı ve serbest zamanın ardından en geç 12:00’de otelden çıkışla program sona erer."
+      }
+    ],
+    "hotelGallery": [],
+    "terms": [
+      {
+        "title": "Tur Programı Süresi ve İçeriği",
+        "items": [
+          "Paket 3 gece 4 gün konaklama içerir. Standart tam gün Kırmızı Tur (Red Tour), ATV safari, Türk Gecesi ve Avanos çanak çömlek yapım atölyesi programda birer kez uygulanır; her gün tekrarlanmaz."
+        ]
+      },
+      {
+        "title": "Tur Rotası Seçimi",
+        "items": [
+          "Paketin standart tam gün tur rotası Kırmızı Tur (Red Tour) rotasıdır.",
+          "Mix Tur, Yeşil Tur (Green Tour) veya Echoes of Cappadocia Sunset Tur alternatif olarak talep edilebilir.",
+          "Alternatif rotalar müsaitliğe bağlıdır; oluşabilecek fiyat farkı rezervasyon onayından önce misafire bildirilir."
+        ]
+      },
+      {
+        "title": "Konaklama Detayları",
+        "items": [
+          "Konaklama voucher üzerinde “Genel Konaklama” olarak gösterilir. Otel müsaitliğe göre belirlenir; gerektiğinde eşdeğer otel atanır.",
+          "Kesin otel adı rezervasyon onayında paylaşılır ve voucher üzerine işlenir."
+        ]
+      },
+      {
+        "title": "Başlangıç Fiyatı",
+        "items": [
+          "Gösterilen tutar iki kişinin toplam başlangıç fiyatıdır; kişi başı fiyat değildir. Tarih, seçilen otel veya oda, kişi sayısı, çocuk yaşları ve ek hizmetlere göre nihai fiyat değişebilir."
+        ]
+      },
+      {
+        "title": "Çocuk Fiyatları",
+        "items": [
+          "Çocuk ücretleri yaşa ve atanacak otelin politikasına göre hesaplanır. Kesin çocuk fiyatı, formdaki yaş bilgileri incelendikten sonra teklifte bildirilir."
+        ]
+      },
+      {
+        "title": "İptal ve İade Koşulları",
+        "items": [
+          "Rezervasyon iptal/değişiklik talepleri otele giriş tarihinden 72 saat (3 gün) öncesine kadar yapılabilir; bu süre içinde koşulsuz %100 ücretsiz iade garantisi sunulur."
+        ]
+      },
+      {
+        "title": "Program Değişikliği",
+        "items": [
+          "Belirtilen saatler normal hava ve yol koşullarına göre planlanmıştır. Rehberimiz, programa sadık kalmak kaydıyla gerekli durumlarda akışı değiştirebilir."
+        ]
+      },
+      {
+        "title": "Sorumluluk ve Kayıp Eşya",
+        "items": [
+          "Seyahat süresince araçlarda ve konaklama tesislerinde unutulan veya kaybolan eşyalardan acentemiz sorumlu değildir."
+        ]
+      }
+    ],
+    "reviews": [],
+    "reviewsSource": null,
+    "contact": {
+      "phone": "+905467948749",
+      "phoneDisplay": "0546 794 87 49",
+      "whatsapp": "+905467948749",
+      "whatsappDisplay": "0546 794 87 49",
+      "whatsappE164": "905467948749"
+    },
+    "contactNote": "Kapadokya turları hakkında bilgi ve rezervasyon için 0546 794 87 49 numarasıyla iletişime geçin.",
+    "tourRoutes": [
+      {
+        "key": "red-tour",
+        "name": "Kırmızı Tur (Red Tour)",
+        "badge": "Fiyata dahil standart tur",
+        "isDefault": true,
+        "stops": [
+          "Uçhisar Kalesi",
+          "Zelve Açık Hava Müzesi",
+          "Paşabağ (Rahipler Vadisi)",
+          "Avanos Çömlek Atölyesi",
+          "Devrent (Hayal Vadisi)",
+          "Aşk Vadisi"
+        ]
+      },
+      {
+        "key": "mix-tour",
+        "name": "Mix Tur",
+        "badge": "Alternatif gezi paketi",
+        "stops": [
+          "Uçhisar Kalesi",
+          "Zelve Açık Hava Müzesi",
+          "Paşabağ (Rahipler Vadisi)",
+          "Avanos Çömlek Atölyesi",
+          "Devrent (Hayal Vadisi)",
+          "Aşk Vadisi",
+          "Kaymaklı Yeraltı Şehri"
+        ]
+      },
+      {
+        "key": "green-tour",
+        "name": "Yeşil Tur (Green Tour)",
+        "badge": "Alternatif gezi paketi",
+        "stops": [
+          "Göreme Panorama",
+          "Güvercinlik Vadisi",
+          "Oniks (Taş) Atölyesi",
+          "Kaymaklı Yeraltı Şehri",
+          "Ihlara Vadisi (Yürüyüş)",
+          "Selime Manastırı"
+        ]
+      },
+      {
+        "key": "sunset-tour",
+        "name": "Echoes of Cappadocia Sunset Tur",
+        "badge": "Alternatif gezi paketi",
+        "stops": [
+          "Aşk Vadisi",
+          "Güllüdere ve Kızılçukur Vadisi",
+          "Canlı DJ Performansı (Sessiz Parti)",
+          "Yöresel Şarap İkramı"
+        ]
+      }
+    ],
+    "ogImage": "/assets/packages/kapadokya/kapadokya-3-gece-og-v2.webp",
+    "seoImages": [
+      "/assets/packages/kapadokya/kapadokya-3-gece-kare-v2.webp",
+      "/assets/packages/kapadokya/kapadokya-3-gece-4x3-v2.webp",
+      "/assets/packages/kapadokya/kapadokya-3-gece-kapak-v2.webp"
+    ],
+    "imageAlt": "Kapadokya peribacaları üzerinde gün doğumunda yükselen balonlar ve Avanos çömleği",
+    "seoUpdatedAt": "2026-08-24T14:21:38+03:00",
+    "startingPrice": true,
+    "packageNights": 3
+  }
+]

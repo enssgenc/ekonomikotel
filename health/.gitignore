@@ -1,0 +1,7 @@
+node_modules/
+.sites-runtime/
+.playwright-mcp/
+.impeccable/
+deploy/
+.env
+.env.*

@@ -1,0 +1,11 @@
+node_modules
+.git
+dist
+.ssr
+*.log
+health/node_modules
+health/dist
+data
+.env
+.env.*
+*.sqlite*
