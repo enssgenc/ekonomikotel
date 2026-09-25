@@ -1,7 +1,7 @@
 FROM node:24-alpine AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --no-audit --no-fund
+RUN npm ci --include=dev --no-audit --no-fund
 COPY . .
 RUN npm run build && npm run check
 RUN npm prune --omit=dev --no-audit --no-fund
