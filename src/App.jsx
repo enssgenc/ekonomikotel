@@ -1,4 +1,6 @@
 import InquiryPanel from "./InquiryPanel.jsx";
+import ContactForm from "./ContactForm.jsx";
+import { AGENCY, DATA_CONTROLLER, whatsappUrl } from "./lib/agency.js";
 import { defaultHomepage } from "./lib/homepage.js";
 import React, {
   createContext,
@@ -38,6 +40,7 @@ import {
   Minus,
   Phone,
   Plus,
+  ShieldCheck,
   SlidersHorizontal,
   SuitcaseRolling,
   Users,
@@ -58,8 +61,6 @@ import {
 } from "@phosphor-icons/react";
 import { useCatalog } from "./CatalogContext.jsx";
 
-const PHONE = "0534 235 46 88";
-const TEL = "+905342354688";
 const normal = (value = "") =>
   String(value)
     .toLocaleLowerCase("tr-TR")
@@ -210,10 +211,10 @@ function Header() {
       <div className="utility">
         <div className="shell">
           <span>Tatilin en güzel hali, iyi bir planla başlar.</span>
-          <a href={`tel:${TEL}`}>
+          <a href={`tel:${AGENCY.tel}`}>
             <Phone size={14} />
             <span>Bilgi ve rezervasyon</span>
-            <strong>{PHONE}</strong>
+            <strong>{AGENCY.phoneDisplay}</strong>
           </a>
         </div>
       </div>
@@ -265,6 +266,27 @@ function Header() {
     </>
   );
 }
+function TursabLink() {
+  return (
+    <a
+      className="tursab-link"
+      href={AGENCY.tursabVerifyUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <ShieldCheck size={15} />
+      <span>
+        TÜRSAB Belge No:{" "}
+        <span className="tursab-no">{AGENCY.tursabNo}</span> ·{" "}
+        {AGENCY.tursabGroup}
+      </span>
+      <span className="sr-only">
+        {" "}
+        (TÜRSAB doğrulama sayfası yeni sekmede açılır)
+      </span>
+    </a>
+  );
+}
 function Footer() {
   return (
     <footer>
@@ -290,14 +312,15 @@ function Footer() {
           <Link to="/rehber">Kapadokya rehberi</Link>
           <a href="/saglik-turizmi/">Sağlık turizmi</a>
           <Link to="/gorsel-kaynaklari">Görsel kaynakları</Link>
+          <Link to="/kvkk-aydinlatma">KVKK Aydınlatma Metni</Link>
         </div>
         <div className="footer-contact">
           <h3>Birlikte planlayalım</h3>
-          <a className="phone-link" href={`tel:${TEL}`}>
-            {PHONE}
+          <a className="phone-link" href={`tel:${AGENCY.tel}`}>
+            {AGENCY.phoneDisplay}
           </a>
-          <Link to="/iletisim">
-            İletişim
+          <Link to="/iletisim#iletisim-formu">
+            İletişim formu
             <ArrowUpRight size={17} />
           </Link>
           <span>Fiyat ve müsaitlik için bize ulaşın.</span>
@@ -307,6 +330,7 @@ function Footer() {
         <span>
           © {new Date().getFullYear()} Ekonomikotel. Tüm hakları saklıdır.
         </span>
+        <TursabLink />
         <span>Otel ve tur fiyatları seçilen tarihe göre belirlenir.</span>
       </div>
     </footer>
@@ -939,13 +963,19 @@ function HelpStrip() {
     <section className="help-strip">
       <div>
         <h2>Tatil planında bir el daha.</h2>
-        <p>Otel veya tur seçiminizi birlikte netleştirelim.</p>
+        <p>
+          Otel veya tur seçiminizi birlikte netleştirelim.{" "}
+          <Link className="help-form-link" to="/iletisim#iletisim-formu">
+            Formu doldurun
+            <ArrowRight size={15} />
+          </Link>
+        </p>
       </div>
-      <a href={`tel:${TEL}`}>
+      <a href={`tel:${AGENCY.tel}`}>
         <Phone size={25} />
         <span>
           <small>Bilgi ve rezervasyon</small>
-          <strong>{PHONE}</strong>
+          <strong>{AGENCY.phoneDisplay}</strong>
         </span>
         <ArrowUpRight size={21} />
       </a>
@@ -1359,7 +1389,7 @@ function OfferForm({ item, type = "otel" }) {
     setError("");
     const message = `Merhaba, Ekonomikotel üzerinden ${item.name || item.title} için fiyat ve müsaitlik bilgisi rica ediyorum.\nTarih: ${dateText(start)} – ${dateText(end)}\nMisafir: ${adults} yetişkin${children ? `, ${children} çocuk (yaşlar: ${ages.slice(0, children).join(", ")})` : ""}\n${type === "otel" ? "Otel" : "Tur"}: https://ekonomikotel.com/${type === "otel" ? "oteller" : "turlar"}/${item.slug}`;
     window.open(
-      `https://wa.me/905342354688?text=${encodeURIComponent(message)}`,
+      whatsappUrl(message),
       "_blank",
       "noopener,noreferrer",
     );
@@ -1495,9 +1525,9 @@ function OfferForm({ item, type = "otel" }) {
         Bu işlem rezervasyon oluşturmaz. Kesin fiyat ve müsaitlik görüşme
         sırasında onaylanır.
       </p>
-      <a className="offer-phone" href={`tel:${TEL}`}>
+      <a className="offer-phone" href={`tel:${AGENCY.tel}`}>
         <Phone size={17} />
-        {PHONE}
+        {AGENCY.phoneDisplay}
       </a>
     </aside>
   );
@@ -1917,6 +1947,11 @@ function Guide() {
 }
 function Contact() {
   const { hero } = useCatalog();
+  const location = useLocation();
+  useEffect(() => {
+    if (location.hash === "#iletisim-formu")
+      document.getElementById("iletisim-formu")?.scrollIntoView();
+  }, [location.key, location.hash]);
   return (
     <div className="shell contact-page">
       <nav className="breadcrumb" aria-label="Sayfa yolu">
@@ -1925,41 +1960,69 @@ function Contact() {
         <span>İletişim</span>
       </nav>
       <div className="contact-layout">
-        <div>
+        <header className="contact-intro">
           <h1>
             Bir güzel tatil
             <br />
             planlayalım.
           </h1>
           <p>
-            Otel seçimi, tur programı ve tarihlerinize özel fiyat bilgisi için
-            bize ulaşın.
+            Otel, tur veya balayı planınızı yazın; tarihinize ve misafir
+            sayınıza göre fiyat ve müsaitlik bilgisiyle size dönelim.
           </p>
-          <a className="contact-phone" href={`tel:${TEL}`}>
-            <Phone size={29} />
-            {PHONE}
-          </a>
-          <a
-            className="button"
-            href="https://wa.me/905342354688"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <WhatsappLogo size={23} />
-            WhatsApp’tan yaz
-            <ArrowUpRight size={18} />
-          </a>
-          <p className="contact-note">
-            Kesin fiyat, müsaitlik ve rezervasyon koşulları görüşme sırasında
-            netleştirilir.
-          </p>
-        </div>
-        <img
-          src={hero}
-          alt="Kapadokya’da sıcak hava balonları"
-          width="900"
-          height="1000"
-        />
+        </header>
+        <aside className="contact-aside" aria-label="İletişim bilgileri">
+          <img
+            src={hero}
+            alt="Kapadokya’da sıcak hava balonları"
+            width="900"
+            height="560"
+            loading="lazy"
+          />
+          <div className="contact-card">
+            <span className="contact-card-label">Bilgi ve rezervasyon</span>
+            <a className="contact-phone" href={`tel:${AGENCY.tel}`}>
+              <Phone size={26} />
+              {AGENCY.phoneDisplay}
+            </a>
+            <a
+              className="button contact-whatsapp"
+              href={whatsappUrl(
+                "Merhaba, Ekonomikotel üzerinden bilgi almak istiyorum.",
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <WhatsappLogo size={22} />
+              WhatsApp’tan yaz
+              <ArrowUpRight size={17} />
+            </a>
+            <a
+              className="contact-tursab"
+              href={AGENCY.tursabVerifyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ShieldCheck size={26} />
+              <span>
+                <strong>
+                  TÜRSAB Belge No:{" "}
+                  <span className="tursab-no">{AGENCY.tursabNo}</span>
+                </strong>
+                <small>
+                  {AGENCY.tursabGroup} · Belgeyi TÜRSAB’da doğrulayın
+                </small>
+              </span>
+              <ArrowUpRight size={16} />
+              <span className="sr-only">(yeni sekmede açılır)</span>
+            </a>
+            <p className="contact-note">
+              Kesin fiyat, müsaitlik ve rezervasyon koşulları görüşme sırasında
+              netleştirilir.
+            </p>
+          </div>
+        </aside>
+        <ContactForm />
       </div>
     </div>
   );
@@ -2009,6 +2072,308 @@ function Credits() {
     </div>
   );
 }
+// KVKK md. 10 aydınlatma metni: /iletisim formu, otel ve tur sayfalarındaki
+// teklif formu ile telefon/WhatsApp talepleri. Sağlık turizmi formu sağlık
+// verisi içerdiğinden kendi aydınlatma metniyle sağlık bölümünde yer alır.
+const KVKK_DATA = [
+  ["Kimlik", "Adınız ve soyadınız."],
+  [
+    "İletişim",
+    "Telefon numaranız; e-posta adresiniz (isteğe bağlıdır, e-posta ile dönüş seçerseniz gerekir); size hangi yoldan (telefon, WhatsApp, e-posta) ve hangi saat aralığında dönmemizi istediğiniz.",
+  ],
+  [
+    "Talep ve teklif bilgileri",
+    "Talebinizin konusu; ilgilendiğiniz otel, tur veya oda tipi; giriş-çıkış ya da tur tarihleri ve tarihlerin esnek olup olmadığı; yetişkin ve oda sayısı; bölge ve bütçe tercihi; mevcut rezervasyon veya takip numaranız; mesajınız; size verilen takip numarası ve seçtiğiniz tarihler için hesaplanan fiyat.",
+  ],
+  [
+    "Çocuk misafirler",
+    "Yalnızca çocukların sayısı ve yaşları. Konaklama ve tur fiyatı yaşa göre belirlendiği için sorulur; çocukların adı istenmez.",
+  ],
+  [
+    "Müşteri işlem kayıtları",
+    "Talebinizin durumu, ekibimizin görüşme notları, size sunulan teklif ve talebin sonucu.",
+  ],
+  [
+    "İşlem güvenliği",
+    "Onay kutusunu işaretleyip formu gönderdiğiniz tarih ve saat. Formların kötüye kullanımını önlemek için IP adresinizden türetilen tek yönlü bir özet kısa süreli istek sınırlamasında kullanılır; IP adresiniz talep kaydınıza eklenmez.",
+  ],
+];
+const KVKK_RIGHTS = [
+  "Kişisel verilerinizin işlenip işlenmediğini öğrenme",
+  "İşlenmişse buna ilişkin bilgi talep etme",
+  "İşlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme",
+  "Yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme",
+  "Eksik veya yanlış işlenmişse düzeltilmesini isteme",
+  "KVKK’nın 7. maddesindeki şartlar çerçevesinde silinmesini veya yok edilmesini isteme",
+  "Düzeltme, silme veya yok etme işlemlerinin verilerin aktarıldığı üçüncü kişilere bildirilmesini isteme",
+  "Münhasıran otomatik sistemlerle analiz edilmesi sonucunda aleyhinize bir sonuç çıkmasına itiraz etme",
+  "Kanuna aykırı işlenmesi nedeniyle zarara uğramanız hâlinde zararın giderilmesini talep etme",
+];
+function KvkkNotice() {
+  return (
+    <div className="shell prose-page kvkk-page">
+      <nav className="breadcrumb" aria-label="Sayfa yolu">
+        <Link to="/">Ana sayfa</Link>
+        <CaretRight size={12} />
+        <span>KVKK Aydınlatma Metni</span>
+      </nav>
+      <h1>KVKK Aydınlatma Metni</h1>
+      <p className="kvkk-lead">
+        İletişim ve teklif formlarımız ile telefon ve WhatsApp üzerinden
+        ilettiğiniz kişisel verileri nasıl işlediğimizi, 6698 sayılı Kişisel
+        Verilerin Korunması Kanunu’nun (KVKK) 10. maddesi uyarınca açıklarız.
+      </p>
+      <p className="kvkk-updated">
+        Son güncelleme: <time dateTime="2026-09-27">27 Eylül 2026</time>
+      </p>
+      <p>
+        Bu metin; İletişim sayfasındaki talep formunu, otel ve tur
+        sayfalarındaki “Beni arayın, teklif almak istiyorum” formunu ve bilgi
+        hattımızdan ya da WhatsApp’tan bize ulaştığınızda paylaştığınız
+        bilgileri kapsar. Sağlık turizmi (Cappadocia Health) bölümündeki ön
+        değerlendirme formu sağlık verisi içerdiği için ayrı bir aydınlatma
+        metnine tabidir; o metin sağlık bölümünde yer alır.
+      </p>
+
+      <h2>1. Veri sorumlusu</h2>
+      <dl className="kvkk-facts">
+        <div>
+          <dt>Ticaret unvanı</dt>
+          <dd>{DATA_CONTROLLER.legalName}</dd>
+        </div>
+        <div>
+          <dt>Ticari ad ve markalar</dt>
+          <dd>
+            UPTREND TRAVEL · Ekonomik Tatilim ve Ekonomikotel markaları.
+            Cappadocia Health, ekonomikotel.com’un sağlık turizmi bölümüdür.
+          </dd>
+        </div>
+        <div>
+          <dt>TÜRSAB belge no</dt>
+          <dd>
+            <span className="tursab-no">{AGENCY.tursabNo}</span> ·{" "}
+            {AGENCY.tursabGroup}
+          </dd>
+        </div>
+        <div>
+          <dt>Adres</dt>
+          <dd>{DATA_CONTROLLER.address}</dd>
+        </div>
+        <div>
+          <dt>E-posta</dt>
+          <dd>
+            <a href={`mailto:${DATA_CONTROLLER.email}`}>
+              {DATA_CONTROLLER.email}
+            </a>
+          </dd>
+        </div>
+        <div>
+          <dt>Bilgi hattı</dt>
+          <dd>
+            <a href={`tel:${AGENCY.tel}`}>{AGENCY.phoneDisplay}</a>
+          </dd>
+        </div>
+      </dl>
+
+      <h2>2. İşlenen kişisel veriler</h2>
+      <p>
+        Formlarda yalnızca talebinizi yanıtlamak için gereken bilgileri
+        soruyoruz. Hangi alanların görüneceği talep konusuna göre değişir:
+      </p>
+      <dl className="kvkk-facts">
+        {KVKK_DATA.map(([category, detail]) => (
+          <div key={category}>
+            <dt>{category}</dt>
+            <dd>{detail}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="kvkk-note">
+        Mesaj alanına sağlık bilgisi gibi özel nitelikli kişisel veri
+        yazmamanızı rica ederiz; talebinizi yanıtlamak için bu bilgilere
+        ihtiyacımız yoktur.
+      </p>
+
+      <h2>3. İşleme amaçları</h2>
+      <p>Kişisel verilerinizi şu amaçlarla işleriz:</p>
+      <ul>
+        <li>Talebinizi almak, kaydetmek ve size bir takip numarası vermek</li>
+        <li>
+          Seçtiğiniz kanaldan (telefon, WhatsApp veya e-posta) ve tercih
+          ettiğiniz saat aralığında size dönüş yapmak
+        </li>
+        <li>
+          Tarihinize, misafir sayınıza ve çocuk yaşlarına göre otel ve tur
+          seçeneklerini, fiyat ve müsaitlik bilgisini hazırlayıp teklif sunmak
+        </li>
+        <li>
+          Mevcut rezervasyonunuzla ilgili sorunuzu veya değişiklik isteğinizi
+          yanıtlamak
+        </li>
+        <li>Teklifi kabul etmeniz hâlinde rezervasyon sürecini başlatmak</li>
+        <li>
+          Talep ve tekliflerin takibini yapmak, hizmet kalitemizi ölçmek ve
+          geliştirmek
+        </li>
+        <li>
+          Sahte, tekrarlanan veya otomatik form gönderimlerini önlemek ve
+          sistem güvenliğini sağlamak
+        </li>
+      </ul>
+      <p>
+        İletişim bilgileriniz, ayrıca onayınız alınmadan kampanya veya tanıtım
+        iletisi göndermek için kullanılmaz.
+      </p>
+
+      <h2>4. Hukuki sebepler</h2>
+      <ul>
+        <li>
+          <strong>
+            KVKK md. 5/2-c · Sözleşmenin kurulması veya ifası:
+          </strong>{" "}
+          talebinizin yanıtlanması, teklif hazırlanması, rezervasyon sürecinin
+          başlatılması ve mevcut rezervasyonunuzla ilgili taleplerin
+          karşılanması.
+        </li>
+        <li>
+          <strong>KVKK md. 5/2-f · Meşru menfaat:</strong> taleplerin kayıt
+          altına alınıp takip edilmesi, hizmet kalitesinin ölçülmesi ve
+          formların kötüye kullanımının önlenmesi. Bu işleme, temel hak ve
+          özgürlüklerinize zarar vermeyecek ölçüde yapılır.
+        </li>
+        <li>
+          <strong>KVKK md. 5/2-ç · Hukuki yükümlülük:</strong> yetkili
+          kurumların kanuna dayanarak bilgi istemesi hâlinde.
+        </li>
+      </ul>
+      <p>
+        Formlardaki onay kutusu, bu metni okuduğunuzu ve talebinizin
+        yanıtlanması için iletişim bilgilerinizin kullanılmasını kabul
+        ettiğinizi gösterir. İletişim ve teklif talepleriniz açık rızaya değil,
+        yukarıdaki hukuki sebeplere dayanılarak işlenir.
+      </p>
+
+      <h2>5. Kişisel verilerin aktarılması</h2>
+      <ul>
+        <li>
+          <strong>Oteller ve tur hizmet sağlayıcıları:</strong> Yalnızca
+          teklifimizi kabul edip rezervasyona geçmeye karar verdiğinizde;
+          rezervasyonun yapılabilmesi için gereken bilgiler (ad soyad,
+          tarihler, misafir sayısı ve çocuk yaşları, oda veya tur tercihi,
+          gerektiğinde telefon numaranız) ilgili tesis veya tur operatörüyle
+          paylaşılır.
+        </li>
+        <li>
+          <strong>Barındırma ve altyapı hizmet sağlayıcısı:</strong>{" "}
+          Talepler, barındırma hizmeti aldığımız Hostinger’ın Almanya’daki
+          (Frankfurt) veri merkezinde bulunan sunucuda (VPS) saklanır. Sunucu
+          altyapısını sağlayan firma, verilere yalnızca teknik hizmetin
+          gerektirdiği ölçüde erişebilir.
+        </li>
+        <li>
+          <strong>Yetkili kamu kurum ve kuruluşları:</strong> Yalnızca kanuni
+          bir talep veya yükümlülük bulunduğunda.
+        </li>
+      </ul>
+      <p>
+        Aktarımlar KVKK’nın 8. maddesine uygun olarak yapılır. Talepler
+        Almanya’daki sunucuda saklandığından, formu gönderdiğinizde
+        verileriniz yurt dışına aktarılmış olur; bu aktarım KVKK’nın 9.
+        maddesi kapsamındadır. Bunun dışında kişisel verileriniz yurt dışına
+        yalnızca açık rızanızla veya KVKK’nın 9. maddesinde öngörülen şartlar
+        çerçevesinde, örneğin yurt dışında bulunan bir hizmet sağlayıcıyı
+        kendiniz tercih ettiğinizde aktarılır.
+      </p>
+
+      <h2>6. Toplama yöntemi</h2>
+      <ul>
+        <li>
+          <strong>Web sitesi formları:</strong> İletişim sayfasındaki talep
+          formunu veya otel ve tur sayfalarındaki teklif formunu
+          gönderdiğinizde, bilgileriniz elektronik ortamda ve kısmen otomatik
+          yollarla toplanır.
+        </li>
+        <li>
+          <strong>Telefon ve WhatsApp:</strong> Bilgi hattımızı aradığınızda
+          veya WhatsApp’tan yazdığınızda ilettiğiniz bilgiler, talebinizi
+          takip edebilmek için ekibimizce not alınabilir. Otel ve tur
+          sayfalarındaki “WhatsApp’tan fiyat sor” düğmesi hazırlanan mesajı
+          kendi WhatsApp uygulamanızda açar; mesaj, siz gönderdiğinizde bize
+          ulaşır. WhatsApp yazışmaları bu hizmetin altyapısı üzerinden iletilir
+          ve WhatsApp’ın kendi gizlilik koşulları da geçerlidir.
+        </li>
+        <li>
+          <strong>E-posta:</strong> E-posta ile dönüş istediğinizde veya bize
+          yazdığınızda yazışmalarımız.
+        </li>
+      </ul>
+
+      <h2>7. Saklama süresi</h2>
+      <ul>
+        <li>
+          <strong>İletişim ve teklif talepleri:</strong> Talebin
+          kapatılmasından itibaren en fazla 2 yıl saklanır; süre sonunda
+          silinir, yok edilir veya anonim hâle getirilir.
+        </li>
+        <li>
+          <strong>Rezervasyona dönüşen talepler:</strong> Rezervasyon,
+          sözleşme ve fatura kayıtları ilgili mevzuatın öngördüğü süreler
+          boyunca saklanır.
+        </li>
+        <li>
+          <strong>İstek sınırlaması özeti:</strong> 15 dakikalık sınır süresi
+          dolduktan sonra sistemden temizlenir.
+        </li>
+      </ul>
+
+      <h2>8. KVKK md. 11 kapsamındaki haklarınız</h2>
+      <p>
+        Veri sorumlusu olarak şirketimize başvurarak aşağıdaki haklarınızı
+        kullanabilirsiniz:
+      </p>
+      <ol className="kvkk-rights">
+        {KVKK_RIGHTS.map((right) => (
+          <li key={right}>{right}</li>
+        ))}
+      </ol>
+
+      <h2>9. Başvuru yolları</h2>
+      <ul>
+        <li>
+          <strong>Yazılı olarak:</strong> {DATA_CONTROLLER.address} adresine
+          ıslak imzalı dilekçeyle, şahsen veya posta yoluyla.
+        </li>
+        <li>
+          <strong>E-posta ile:</strong>{" "}
+          <a href={`mailto:${DATA_CONTROLLER.email}`}>
+            {DATA_CONTROLLER.email}
+          </a>{" "}
+          adresine.
+        </li>
+      </ul>
+      <p>
+        Başvurunuzda adınızı soyadınızı, iletişim bilginizi, talebinizi ve
+        varsa takip numaranızı belirtmeniz kimliğinizi doğrulamamızı
+        kolaylaştırır. Bilgi almak için{" "}
+        <a href={`tel:${AGENCY.tel}`}>{AGENCY.phoneDisplay}</a> numaralı
+        hattı arayabilirsiniz; başvurularınızı ise yazılı olarak veya e-posta
+        ile iletmeniz gerekir.
+      </p>
+      <p>
+        Başvurunuz, talebin niteliğine göre en kısa sürede ve en geç 30 gün
+        içinde ücretsiz olarak sonuçlandırılır. İşlemin ayrıca bir maliyet
+        gerektirmesi hâlinde Kişisel Verileri Koruma Kurulunca belirlenen
+        tarifedeki ücret alınabilir.
+      </p>
+      <p>
+        Başvurunuzun reddedilmesi, verilen cevabı yetersiz bulmanız veya
+        süresinde cevap verilmemesi hâlinde; cevabı öğrendiğiniz tarihten
+        itibaren 30 gün ve her hâlde başvuru tarihinden itibaren 60 gün içinde
+        Kişisel Verileri Koruma Kurulu’na şikâyette bulunabilirsiniz.
+      </p>
+    </div>
+  );
+}
 function NotFound() {
   return (
     <div className="shell empty-state not-found">
@@ -2041,6 +2406,7 @@ function RouteEffects() {
         "/favoriler": "Favori Otellerim",
         "/rehber": "Kapadokya Rehberi",
         "/iletisim": "İletişim",
+        "/kvkk-aydinlatma": "KVKK Aydınlatma Metni",
       }[path] ||
       "Kapadokya Otelleri ve Tatil Paketleri";
     document.title = `${title} | Ekonomikotel`;
@@ -2107,6 +2473,7 @@ export default function App() {
           <Route path="/rehber" element={<Guide />} />
           <Route path="/iletisim" element={<Contact />} />
           <Route path="/gorsel-kaynaklari" element={<Credits />} />
+          <Route path="/kvkk-aydinlatma" element={<KvkkNotice />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

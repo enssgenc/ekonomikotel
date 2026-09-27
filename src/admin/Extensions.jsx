@@ -10,8 +10,23 @@ import {
   UploadSimple,
   CheckCircle,
   ClockCounterClockwise,
+  ShieldWarning,
 } from "@phosphor-icons/react";
 import { api } from "./api.js";
+import {
+  TRAVEL_TOPICS,
+  TRAVEL_AREAS,
+  TRAVEL_BUDGETS,
+  CONTACT_METHODS,
+  CONTACT_TIMES,
+  HEALTH_AREAS,
+  HEALTH_TRAVEL_WINDOWS,
+  HEALTH_SERVICES,
+  HEALTH_REPORTS,
+  HEALTH_LANGUAGES,
+  isPlanningTopic,
+  labelOf,
+} from "../lib/contact-forms.js";
 export const B = ({ children, secondary = false, ...p }) => (
   <button
     type="button"
@@ -676,12 +691,148 @@ const leadNames = {
   quoted: "Teklif gönderildi",
   closed: "Sonuçlandı",
 };
+const sourceNames = {
+  hotel: "Otel teklifi",
+  tour: "Tur teklifi",
+  contact: "İletişim formu",
+  health: "Sağlık turizmi",
+};
+const sourceFilters = [
+  ["", "Tümü"],
+  ["hotel,tour", "Otel ve tur teklifleri"],
+  ["contact", "İletişim formu"],
+  ["health", "Sağlık turizmi"],
+];
+// Ülke kodlu numaralar (+ veya 00) her talepte bağlantı alır. Ülke kodu
+// olmayan numara yalnızca otel/tur/iletişim taleplerinde Türkiye numarası
+// sayılır (0XXXXXXXXXX veya 5XXXXXXXXX → 90…); sağlık talepleri çoğunlukla
+// yurt dışından geldiği için bu varsayım yapılmaz ve bağlantı gösterilmez.
+const whatsappLink = (phone = "", kind = "") => {
+  const digits = String(phone).replace(/[^\d+]/g, "");
+  const number = digits.startsWith("+")
+    ? digits.slice(1)
+    : digits.startsWith("00")
+      ? digits.slice(2)
+      : kind === "health"
+        ? ""
+        : /^0\d{10}$/.test(digits)
+          ? "90" + digits.slice(1)
+          : /^5\d{9}$/.test(digits)
+            ? "90" + digits
+            : "";
+  return /^\d{8,15}$/.test(number) ? `https://wa.me/${number}` : "";
+};
+const Facts = ({ rows }) => (
+  <dl className="a-facts">
+    {rows
+      .filter(([, v]) => v !== undefined && v !== null && v !== "")
+      .map(([k, v]) => (
+        <div key={k}>
+          <dt>{k}</dt>
+          <dd>{v}</dd>
+        </div>
+      ))}
+  </dl>
+);
+const guests = (d) => {
+  const ages = Array.isArray(d.childAges) ? d.childAges : [];
+  return `${d.adults ?? 0} yetişkin${
+    ages.length ? ` · ${ages.length} çocuk (yaş: ${ages.join(", ")})` : ""
+  }`;
+};
+function LeadFacts({ d }) {
+  if (d.kind === "health")
+    return (
+      <>
+        <div className="a-sensitive" role="note">
+          <ShieldWarning />
+          <p>
+            <strong>Özel nitelikli sağlık verisi.</strong> Bu bilgileri yalnızca
+            ön değerlendirme için talebi değerlendirecek yetkili sağlık
+            kuruluşuyla paylaşın; e-posta zincirine, mesaj gruplarına veya
+            tablolara kopyalamayın.
+          </p>
+        </div>
+        <Facts
+          rows={[
+            ["Tedavi alanı", labelOf(HEALTH_AREAS, d.treatmentArea)],
+            ["Seçilen tedavi", d.procedure || "Belirtilmedi"],
+            ["Yaşadığı ülke", d.country],
+            ["Görüşme dili", labelOf(HEALTH_LANGUAGES, d.preferredLanguage)],
+            ["Form dili", labelOf(HEALTH_LANGUAGES, d.locale)],
+            ["İletişim tercihi", labelOf(CONTACT_METHODS, d.contactMethod)],
+            [
+              "Seyahat zamanı",
+              labelOf(HEALTH_TRAVEL_WINDOWS, d.travelWindow || ""),
+            ],
+            ["Refakatçi", d.companions ? `${d.companions} kişi` : "Yok"],
+            [
+              "İstenen hizmetler",
+              (d.services || [])
+                .map((v) => labelOf(HEALTH_SERVICES, v))
+                .join(", ") || "Seçilmedi",
+            ],
+            [
+              "Rapor veya görüntüleme",
+              labelOf(HEALTH_REPORTS, d.hasReports || ""),
+            ],
+          ]}
+        />
+      </>
+    );
+  if (d.kind === "contact") {
+    // "Mevcut rezervasyon" ve "Diğer" konularında formda tarih/misafir/bütçe
+    // sorulmaz; sunucunun varsayılan değerleri (2 yetişkin, 1 oda) gösterilmez.
+    const planning = isPlanningTopic(d.topic);
+    return (
+      <Facts
+        rows={[
+          ["Konu", labelOf(TRAVEL_TOPICS, d.topic)],
+          ["Rezervasyon numarası", d.bookingRef],
+          ...(planning
+            ? [
+                [
+                  "Tarihler",
+                  `${d.start ? `${d.start} – ${d.end}` : "Belirtilmedi"}${
+                    d.flexibleDates ? " · tarihler esnek" : ""
+                  }`,
+                ],
+                ["Misafirler", guests(d)],
+                ["Oda", `${d.rooms ?? 1} oda`],
+                ["Bölge", labelOf(TRAVEL_AREAS, d.area || "")],
+                ["Bütçe", labelOf(TRAVEL_BUDGETS, d.budget || "")],
+              ]
+            : []),
+          ["İletişim tercihi", labelOf(CONTACT_METHODS, d.contactMethod)],
+          ...(d.contactMethod === "email"
+            ? []
+            : [["Uygun saat", labelOf(CONTACT_TIMES, d.contactTime || "")]]),
+        ]}
+      />
+    );
+  }
+  return (
+    <>
+      <p>
+        {d.start || "Tarih belirtilmedi"} {d.end && `– ${d.end}`} · {guests(d)}
+      </p>
+      {d.quote?.available && (
+        <p>
+          Hesaplanan gösterge fiyat:{" "}
+          <strong>{money(d.quote.total, d.quote.currency)}</strong> ·{" "}
+          {d.quote.nights} gece
+        </p>
+      )}
+    </>
+  );
+}
 export function LeadsPage() {
   const [q, setQ] = useState(""),
     [status, setStatus] = useState(""),
+    [kind, setKind] = useState(""),
     [page, setPage] = useState(1);
   const { data, error } = useLoad(
-    `/leads?q=${encodeURIComponent(q)}&status=${status}&page=${page}`,
+    `/leads?q=${encodeURIComponent(q)}&status=${status}&kind=${encodeURIComponent(kind)}&page=${page}`,
   );
   return (
     <>
@@ -715,6 +866,21 @@ export function LeadsPage() {
             ))}
           </select>
         </F>
+        <F label="Kaynak">
+          <select
+            value={kind}
+            onChange={(e) => {
+              setKind(e.target.value);
+              setPage(1);
+            }}
+          >
+            {sourceFilters.map(([k, v]) => (
+              <option key={k} value={k}>
+                {v}
+              </option>
+            ))}
+          </select>
+        </F>
       </div>
       {!data ? (
         <p>Yükleniyor…</p>
@@ -728,6 +894,9 @@ export function LeadsPage() {
                 key={r.id}
               >
                 <div>
+                  <span className={`a-source ${r.data.kind || ""}`}>
+                    {sourceNames[r.data.kind] || "Talep"}
+                  </span>
                   <strong>{r.data.name}</strong>
                   <small>
                     {r.reference} · {r.data.title}
@@ -787,6 +956,7 @@ export function LeadDetail() {
   useLeaveGuard(!!form && JSON.stringify(form) !== baseline);
   if (!loaded || !form) return <Alert error={error || "Yükleniyor…"} />;
   const d = loaded.data,
+    whatsapp = whatsappLink(d.phone, d.kind),
     set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   return (
     <>
@@ -797,6 +967,9 @@ export function LeadDetail() {
       <Alert error={error} notice={notice} />
       <div className="a-operation-grid">
         <Box title="Talep bilgileri">
+          <span className={`a-source ${d.kind || ""}`}>
+            {sourceNames[d.kind] || "Talep"}
+          </span>
           <p>
             <a href={`tel:${d.phone.replace(/[^+\d]/g, "")}`}>{d.phone}</a>
             {d.email && (
@@ -805,25 +978,28 @@ export function LeadDetail() {
                 · <a href={`mailto:${d.email}`}>{d.email}</a>
               </>
             )}
+            {whatsapp && (
+              <>
+                {" "}
+                ·{" "}
+                <a
+                  href={whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  WhatsApp
+                </a>
+              </>
+            )}
           </p>
-          <p>
-            {d.start || "Tarih belirtilmedi"} {d.end && `– ${d.end}`} ·{" "}
-            {d.adults} yetişkin
-            {d.childAges.length
-              ? ` · Çocuk yaşları: ${d.childAges.join(", ")}`
-              : ""}
-          </p>
+          <LeadFacts d={d} />
           <p className="a-preserve-lines">{d.message || "Ek mesaj yok."}</p>
-          {d.quote?.available && (
-            <p>
-              Hesaplanan gösterge fiyat:{" "}
-              <strong>{money(d.quote.total, d.quote.currency)}</strong> ·{" "}
-              {d.quote.nights} gece
-            </p>
-          )}
           <small>
             Talep: {date(loaded.created_at)} · İletişim izni:{" "}
             {date(d.consentAt)}
+            {d.kind === "health" && (
+              <> · Sağlık verisi için açık rıza: {date(d.healthConsentAt)}</>
+            )}
           </small>
         </Box>
         <form

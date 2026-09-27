@@ -3,6 +3,7 @@ import { treatmentTranslations } from './treatment-translations.js';
 import { pageTranslations } from './page-translations.js';
 import { pageCopyOverrides, treatmentCopyOverrides, treatmentDetailOverrides } from './i18n-overrides.js';
 import { englishTreatmentEditorial } from './english-treatment-editorial.js';
+import { contactTranslations } from './contact-translations.js';
 
 export const languages = [
   { code: 'tr', label: 'Türkçe', nativeLabel: 'Türkçe', dir: 'ltr' },
@@ -199,6 +200,18 @@ for (const [locale, categories] of Object.entries(treatmentDetailOverrides)) {
 }
 
 export const messages = { tr: trMessages, ...pageTranslations };
+
+function mergeMessages(target, source) {
+  for (const [key, value] of Object.entries(source)) {
+    if (value && typeof value === 'object' && !Array.isArray(value) && target[key] && typeof target[key] === 'object') {
+      mergeMessages(target[key], value);
+    } else {
+      target[key] = value;
+    }
+  }
+}
+
+for (const [locale, copy] of Object.entries(contactTranslations)) mergeMessages(messages[locale], copy);
 
 export function normalizeLocale(locale) {
   return supportedLocales.includes(locale) ? locale : defaultLocale;

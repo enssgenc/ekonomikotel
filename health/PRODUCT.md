@@ -26,7 +26,8 @@ Present the concept of a Cappadocia health journey: treatment decisions belong t
 - Six editorial blog articles with localized copy, generated photography, primary sources, and related reading.
 - No treatment result, recovery date, flight, balloon ride, or excursion is guaranteed.
 - Real hospital names, physician names, contact details, authorization documents, prices, and commercial partnerships have not yet been supplied. Do not invent them or publish claims that depend on them.
-- Site is a local design and content prototype. No inquiry backend or public deployment is included yet.
+- Served at /saglik-turizmi/ on ekonomikotel.com. A contact form (treatment area, optional procedure, travel window, companions, extra services, contact method and language) posts to the main server's /api/contact. It asks for separate contact consent and explicit KVKK consent for health data (shared only with the licensed health institution that will evaluate the request, named to the person before sharing), requires a phone number with country code, warns against pasting medical records, and states that it is not a medical consultation. Both consents link to the KVKK privacy notice (aydinlatma.html, six languages, Turkish authoritative), which is also linked from every footer. The single Ekonomikotel line (+90 544 341 70 20, phone and WhatsApp) is shown in the top strip, the footer and next to the form.
+- The TÜRSAB licence line (from src/lib/agency.js) appears in the footer and the contact section.
 
 ## Brand Commitments
 

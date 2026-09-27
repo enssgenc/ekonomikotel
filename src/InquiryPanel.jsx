@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useId, useRef } from "react";
 import { EnvelopeSimple, Calculator, CheckCircle } from "@phosphor-icons/react";
 const money = (v, c) =>
   new Intl.NumberFormat("tr-TR", { style: "currency", currency: c }).format(v);
@@ -18,7 +18,8 @@ export default function InquiryPanel({
     [calculating, setCalculating] = useState(false),
     [success, setSuccess] = useState("");
   const requestId = useRef(null),
-    sequence = useRef(0);
+    sequence = useRef(0),
+    newTabNote = useId();
   const [contact, setContact] = useState({
     name: "",
     phone: "",
@@ -243,10 +244,21 @@ export default function InquiryPanel({
                 }
               />
               <span>
-                Talebimin yanıtlanması için iletişim bilgilerimin kullanılmasını
-                kabul ediyorum.
+                {/* Yeni sekmede açılır; aynı sekmede gezinmek yazılanları
+                    sıfırlardı. */}
+                <a
+                  href="/kvkk-aydinlatma"
+                  target="_blank"
+                  rel="noopener"
+                  aria-describedby={newTabNote}
+                >
+                  KVKK Aydınlatma Metni
+                </a>
+                ’ni okudum; talebimin yanıtlanması için iletişim bilgilerimin
+                kullanılmasını kabul ediyorum.
               </span>
             </label>
+            <span hidden id={newTabNote}>Yeni sekmede açılır.</span>
             <button type="submit" className="button full" disabled={busy}>
               {busy ? "Gönderiliyor…" : "Teklif talebini gönder"}
             </button>

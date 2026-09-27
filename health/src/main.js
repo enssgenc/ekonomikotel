@@ -1,5 +1,6 @@
 import { blogPosts } from './blogs.js';
 import { escapeHtml, renderBlogCard } from './blog-ui.js';
+import { initContactForm } from './contact-form.js';
 import { getTreatmentCategories } from './i18n.js';
 import { initSite, localizedHref, message } from './site.js';
 
@@ -12,6 +13,7 @@ const total = document.querySelector('#catalog-total');
 const showMore = document.querySelector('#show-more');
 const featuredCategories = document.querySelector('#featured-categories');
 const blogPreview = document.querySelector('#blog-preview-grid');
+const contactForm = initContactForm(document.querySelector('#health-contact'));
 
 const featuredIds = ['dis', 'estetik', 'sac', 'goz'];
 const featuredImages = {
@@ -54,16 +56,16 @@ function renderCatalog() {
   const query = normalize(search.value.trim());
   const selected = categories.find((entry) => entry.id === activeCategory);
   const results = categories.flatMap((group) => group.items
+    .map((item, index) => ({ ...item, index, category: group.label, categoryId: group.id }))
     .filter((item) => (activeCategory === 'all' || activeCategory === group.id) &&
-      (!query || normalize(`${item.name} ${item.summary} ${item.detail} ${group.label}`).includes(query)))
-    .map((item) => ({ ...item, category: group.label })));
+      (!query || normalize(`${item.name} ${item.summary} ${item.detail} ${group.label}`).includes(query))));
   const visible = activeCategory === 'all' && !query && !expanded ? results.slice(0, 8) : results;
 
   total.textContent = message('treatments.resultCount', { count: results.length });
   const sideTitle = query ? message('treatments.searchSideTitle') : selected?.label || message('treatments.defaultSideTitle');
   const sideBody = query ? message('treatments.searchSideBody') : selected?.description || message('treatments.defaultSideBody', { count: treatmentCount() });
   side.hidden = !selected || Boolean(query);
-  side.innerHTML = `<h4>${escapeHtml(sideTitle)}</h4><p>${escapeHtml(sideBody)}</p>`;
+  side.innerHTML = `<h4>${escapeHtml(sideTitle)}</h4><div><p>${escapeHtml(sideBody)}</p>${selected && !query ? `<button class="treatment-ask" type="button" data-ask-area="${selected.id}">${escapeHtml(message('treatments.askArea'))}<span class="arrow-line" aria-hidden="true"></span></button>` : ''}</div>`;
 
   if (results.length === 0) {
     list.innerHTML = `<div class="catalog-empty"><h4>${escapeHtml(message('treatments.noResultsTitle'))}</h4><p>${escapeHtml(message('treatments.noResultsBody'))}</p><button type="button" id="clear-search">${escapeHtml(message('treatments.clearSearch'))}</button></div>`;
@@ -71,7 +73,7 @@ function renderCatalog() {
     return;
   }
 
-  list.innerHTML = visible.map((item) => `<details class="treatment-item"><summary><span class="treatment-row"><span class="treatment-category">${escapeHtml(item.category)}</span><strong>${escapeHtml(item.name)}</strong><span class="treatment-summary">${escapeHtml(item.summary)}</span></span><span class="plus-icon" aria-hidden="true"></span></summary><div class="treatment-detail"><p>${escapeHtml(item.detail)}</p><p>${escapeHtml(message('treatments.detailNote'))}</p></div></details>`).join('');
+  list.innerHTML = visible.map((item) => `<details class="treatment-item"><summary><span class="treatment-row"><span class="treatment-category">${escapeHtml(item.category)}</span><strong>${escapeHtml(item.name)}</strong><span class="treatment-summary">${escapeHtml(item.summary)}</span></span><span class="plus-icon" aria-hidden="true"></span></summary><div class="treatment-detail"><p>${escapeHtml(item.detail)}</p><p>${escapeHtml(message('treatments.detailNote'))}</p><button class="treatment-ask" type="button" data-ask-area="${item.categoryId}" data-ask-item="${item.index}">${escapeHtml(message('treatments.askTreatment'))}<span class="arrow-line" aria-hidden="true"></span></button></div></details>`).join('');
   showMore.hidden = !(activeCategory === 'all' && !query && results.length > 8);
   showMore.innerHTML = expanded
     ? `${escapeHtml(message('treatments.showLess'))}<span class="arrow-line arrow-up" aria-hidden="true"></span>`
@@ -146,4 +148,5 @@ initSite('home', (nextLocale) => {
   renderFilters();
   renderCatalog();
   renderBlogPreview();
+  contactForm.setLocale(locale);
 });

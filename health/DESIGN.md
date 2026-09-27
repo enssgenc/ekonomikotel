@@ -19,5 +19,9 @@ Sağlık hizmetleri ve güven ilk ekranda görünür. Kapadokya deneyimi, tıbbi
 4. Yetkili sağlık kuruluşu ve uzman kararının sınırlarını açıklayan güven bölümü.
 5. Fotoğraflı Kapadokya bölümü; Göreme, Avanos ve Uçhisar durakları.
 6. Altı yazılık sağlık ve seyahat rehberi, ardından iyileşme, gezi, uçuş, fiyat ve kurum doğrulaması hakkında sık sorulan sorular.
+7. Kum zemin üzerinde beyaz kartlı iletişim formu: üç numaralı bölüm (sağlık ihtiyacı, seyahat planı, iletişim) ve iki ayrı onay. Solda kısa giriş, “Sonrasında ne olur?” adımları, tıbbi danışmanlık olmadığı notu ve TÜRSAB satırı yer alır; mobilde form girişten hemen sonra gelir. Tedavi satırlarındaki “Bu tedavi hakkında soru sorun” düğmesi alanı ve işlemi formda önceden seçer. Onay metinlerindeki aydınlatma metni bağlantısı yeni sekmede açılır; yazılanlar kaybolmaz.
+8. Aydınlatma metni (`aydinlatma.html`): yazı sayfasının düzeni; açık mavi başlık alanı, solda yapışkan içindekiler, sağda numaralı on bölüm, veri sorumlusu ve başvuru kanalları için beyaz bilgi kutuları.
+
+Başlık 901–1180px aralığında (eylem düğmesi gizliyken) “İletişim” bağlantısını gezinmede gösterir; uzun dillerde bağlantılar taşmak yerine iki satıra iner.
 
 Araştırma ve önceki tasarımın denetimi için `DESIGN_RESEARCH.md`, görsel kaynakları için `IMAGE_PROVENANCE.md` dosyalarına bakın.

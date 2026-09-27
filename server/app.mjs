@@ -7,6 +7,7 @@ import { join, resolve } from "node:path";
 import sharp from "sharp";
 import { authentication, passwordHash, passwordMatches } from "./auth.mjs";
 import { HttpError, validateContent } from "./validation.mjs";
+import { AGENCY } from "../src/lib/agency.js";
 
 const cleanQuery = (value) =>
   typeof value === "string" ? value.slice(0, 200) : "";
@@ -445,6 +446,7 @@ export function createApp({
         "/turlar/",
         "/rehber/",
         "/iletisim/",
+        "/kvkk-aydinlatma/",
         ...data.hotels.map((h) => `/oteller/${h.slug}/`),
         ...data.tours.map((t) => `/turlar/${t.slug}/`),
       ];
@@ -475,8 +477,15 @@ export function createApp({
         "/turlar": "Turlar ve Tatil Paketleri",
         "/rehber": "Kapadokya Rehberi",
         "/iletisim": "İletişim",
+        "/kvkk-aydinlatma": "KVKK Aydınlatma Metni",
         "/favoriler": "Favorilerim",
         "/gorsel-kaynaklari": "Görsel Kaynakları",
+      };
+      // Sayfaya özel açıklamalar; olmayan sayfalarda genel açıklama kullanılır.
+      const descriptions = {
+        "/iletisim": `Otel, tur ve balayı talepleriniz için iletişim formu ve ${AGENCY.phoneDisplay} bilgi hattı. TÜRSAB Belge No: ${AGENCY.tursabNo}.`,
+        "/kvkk-aydinlatma":
+          "Ekonomikotel iletişim ve teklif formları için kişisel verilerin işlenmesine ilişkin aydınlatma metni.",
       };
       const found = !!(titles[pathname] || hotel || tour),
         item = hotel || tour;
@@ -490,6 +499,7 @@ export function createApp({
         item?.seoDescription ||
         hotel?.blurb ||
         tour?.shortDesc ||
+        descriptions[pathname] ||
         "Ekonomikotel ile otelleri ve tatil paketlerini keşfedin.";
       let html = await readFile(join(dist, "shell.html"), "utf8");
       html = html

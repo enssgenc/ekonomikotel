@@ -4,6 +4,23 @@ import { z } from "zod";
 import { HttpError, validateContent } from "./validation.mjs";
 import { calculateStay, validDate } from "../src/lib/pricing.js";
 import { defaultHomepage } from "../src/lib/homepage.js";
+import {
+  TRAVEL_TOPICS,
+  TRAVEL_AREAS,
+  TRAVEL_BUDGETS,
+  CONTACT_METHODS,
+  CONTACT_TIMES,
+  HEALTH_AREAS,
+  HEALTH_TRAVEL_WINDOWS,
+  HEALTH_SERVICES,
+  HEALTH_REPORTS,
+  HEALTH_LOCALES,
+  HEALTH_LANGUAGES,
+  PHONE_PATTERN,
+  INTL_PHONE_PATTERN,
+  values,
+  labelOf,
+} from "../src/lib/contact-forms.js";
 import { parseWorkbook, importTemplate } from "./import-service.mjs";
 const now = () => new Date().toISOString();
 const parse = (schema, input) => {
@@ -76,7 +93,7 @@ const leadSchema = z.object({
   phone: z
     .string()
     .trim()
-    .regex(/^\+?[\d ()-]{7,25}$/, "Telefon numarasını kontrol edin."),
+    .regex(PHONE_PATTERN, "Telefon numarasını kontrol edin."),
   email: z.string().email().max(180).or(z.literal("")).default(""),
   message: text(4000),
   start: day,
@@ -88,6 +105,175 @@ const leadSchema = z.object({
   website: z.string().max(200).default(""),
   requestId: uuid,
 });
+// İletişim formları: "travel" = Ekonomikotel otel/tur iletişim formu,
+// "health" = Cappadocia Health ön değerlendirme formu. Değer listeleri
+// src/lib/contact-forms.js içindedir; iki arayüz de aynı listeleri kullanır.
+const pick = (list, message = "Listeden bir seçenek seçin.") =>
+  z.enum(values(list), { error: message });
+const count = (min, max, fallback, message) =>
+  z
+    .number({ error: message })
+    .int(message)
+    .min(min, message)
+    .max(max, message)
+    .default(fallback);
+const contactFields = {
+  requestId: z
+    .string({ error: "Formu yenileyip tekrar deneyin." })
+    .uuid("Formu yenileyip tekrar deneyin."),
+  name: z
+    .string({ error: "Adınızı girin." })
+    .trim()
+    .min(2, "Adınızı girin.")
+    .max(120, "Ad en fazla 120 karakter olabilir."),
+  email: z
+    .string({ error: "E-posta adresini kontrol edin." })
+    .trim()
+    .max(180, "E-posta adresini kontrol edin.")
+    .refine(
+      (v) => !v || z.email().safeParse(v).success,
+      "E-posta adresini kontrol edin.",
+    )
+    .default(""),
+  contactMethod: pick(CONTACT_METHODS, "İletişim tercihinizi seçin."),
+  consent: z.literal(true, { error: "İletişim onayını işaretleyin." }),
+  website: z.string().max(200).default(""),
+};
+// Otel/tur formu yurt içi numaraları da kabul eder; sağlık formunda ülke kodu
+// (+ veya 00) zorunludur, çünkü başvuruların çoğu yurt dışından gelir.
+const phoneField = (pattern, message) =>
+  z
+    .string({ error: "Telefon numaranızı girin." })
+    .trim()
+    .regex(pattern, message);
+const emailWhenChosen = (d, ctx) => {
+  if (d.contactMethod === "email" && !d.email)
+    ctx.addIssue({
+      code: "custom",
+      path: ["email"],
+      message: "E-posta ile dönüş için e-posta adresinizi girin.",
+    });
+};
+const travelContact = z
+  .object({
+    form: z.literal("travel"),
+    ...contactFields,
+    phone: phoneField(PHONE_PATTERN, "Telefon numarasını kontrol edin."),
+    message: z
+      .string()
+      .trim()
+      .max(4000, "Mesaj en fazla 4000 karakter olabilir.")
+      .default(""),
+    topic: pick(TRAVEL_TOPICS, "Talep konusunu seçin."),
+    start: day,
+    end: day,
+    flexibleDates: z.boolean().default(false),
+    adults: count(1, 50, 2, "Yetişkin sayısı 1–50 olmalı."),
+    childAges: z
+      .array(
+        z
+          .number()
+          .int("Çocuk yaşı 0–17 olmalı.")
+          .min(0, "Çocuk yaşı 0–17 olmalı.")
+          .max(17, "Çocuk yaşı 0–17 olmalı."),
+      )
+      .max(10, "En fazla 10 çocuk eklenebilir.")
+      .default([]),
+    rooms: count(1, 50, 1, "Oda sayısı 1–50 olmalı."),
+    area: pick(TRAVEL_AREAS).default(""),
+    budget: pick(TRAVEL_BUDGETS).default(""),
+    contactTime: pick(CONTACT_TIMES).default(""),
+    bookingRef: z
+      .string()
+      .trim()
+      .max(40, "Rezervasyon numarası en fazla 40 karakter olabilir.")
+      .default(""),
+  })
+  .superRefine((d, ctx) => {
+    emailWhenChosen(d, ctx);
+    const start = typeof d.start === "string" ? d.start : "",
+      end = typeof d.end === "string" ? d.end : "";
+    if (
+      !(start || end) ||
+      (start && !validDate(start)) ||
+      (end && !validDate(end))
+    )
+      return;
+    const field =
+      !start || start < now().slice(0, 10)
+        ? "start"
+        : !end || end <= start
+          ? "end"
+          : "";
+    if (field)
+      ctx.addIssue({
+        code: "custom",
+        path: [field],
+        message: "Geçerli bir tarih aralığı girin.",
+      });
+  });
+const healthContact = z
+  .object({
+    form: z.literal("health"),
+    ...contactFields,
+    phone: phoneField(
+      INTL_PHONE_PATTERN,
+      "Ülke koduyla birlikte telefon numarası girin (ör. +44 …).",
+    ),
+    message: z
+      .string()
+      .trim()
+      .max(2000, "Mesaj en fazla 2000 karakter olabilir.")
+      .default(""),
+    locale: z.enum(HEALTH_LOCALES, { error: "Sayfa dili geçersiz." }),
+    treatmentArea: pick(HEALTH_AREAS, "Tedavi alanını seçin."),
+    procedure: z
+      .string()
+      .trim()
+      .max(160, "Tedavi adı en fazla 160 karakter olabilir.")
+      .default(""),
+    country: z
+      .string({ error: "Yaşadığınız ülkeyi girin." })
+      .trim()
+      .min(2, "Yaşadığınız ülkeyi girin.")
+      .max(80, "Ülke adı en fazla 80 karakter olabilir."),
+    // Boş bırakılırsa sayfa dili kullanılır.
+    preferredLanguage: z
+      .enum([...values(HEALTH_LANGUAGES), ""], {
+        error: "Görüşme dilini seçin.",
+      })
+      .default(""),
+    travelWindow: pick(HEALTH_TRAVEL_WINDOWS).default(""),
+    companions: count(0, 5, 0, "Refakatçi sayısı 0–5 olmalı."),
+    services: z
+      .array(pick(HEALTH_SERVICES))
+      .max(HEALTH_SERVICES.length, "Hizmet seçimini kontrol edin.")
+      .refine(
+        (list) => new Set(list).size === list.length,
+        "Hizmet seçimini kontrol edin.",
+      )
+      .default([]),
+    hasReports: pick(HEALTH_REPORTS).default(""),
+    healthConsent: z.literal(true, {
+      error: "Sağlık bilgileriniz için açık rıza onayını işaretleyin.",
+    }),
+  })
+  .superRefine(emailWhenChosen);
+const contactSchema = z.discriminatedUnion(
+  "form",
+  [travelContact, healthContact],
+  { error: "Form türü geçersiz." },
+);
+// Tek bir alan hatalıysa üst mesaj da o alanın mesajı olur.
+const parseContact = (input) => {
+  try {
+    return parse(contactSchema, input);
+  } catch (error) {
+    if (error.fields?.length === 1) error.message = error.fields[0].message;
+    throw error;
+  }
+};
+const LEAD_KINDS = ["hotel", "tour", "contact", "health"];
 function limited(store, req, bucket, max = 5) {
   const key =
       bucket +
@@ -145,11 +331,12 @@ export function publicExtensions(app, store, origin) {
     (req, res) => {
       const data = parse(leadSchema, req.body);
       if (data.website) throw new HttpError(422, "Talep gönderilemedi.");
-      limited(store, req, "lead:");
+      // Kayıtlı bir gönderimin tekrarı istek sınırına sayılmaz.
       const old = store.db
         .prepare("SELECT reference FROM leads WHERE id=?")
         .get(data.requestId);
       if (old) return res.json({ reference: old.reference });
+      limited(store, req, "lead:");
       if (
         (data.start || data.end) &&
         (!data.start ||
@@ -190,6 +377,60 @@ export function publicExtensions(app, store, origin) {
           "INSERT INTO leads(id,reference,status,data,created_at,updated_at) VALUES(?,?,'new',?,?,?)",
         )
         .run(data.requestId, reference, JSON.stringify(saved), now(), now());
+      res.status(201).json({ reference });
+    },
+  );
+  app.post(
+    "/api/contact",
+    express.json({ limit: "20kb" }),
+    exactOrigin,
+    (req, res) => {
+      const { website, requestId, form, ...data } = parseContact(req.body);
+      if (website) throw new HttpError(422, "Talep gönderilemedi.");
+      // Aynı requestId ile tekrar gönderim (ağ hatası sonrası yeniden deneme)
+      // yeni kayıt açmaz ve istek sınırına sayılmaz; ilk kaydın takip
+      // numarası döner.
+      const old = store.db
+        .prepare("SELECT reference FROM leads WHERE id=?")
+        .get(requestId);
+      if (old) return res.status(201).json({ reference: old.reference });
+      limited(store, req, "contact:");
+      const time = now(),
+        health = form === "health";
+      const reference =
+        (health ? "CH-" : "EKO-") +
+        randomBytes(5).toString("hex").toUpperCase();
+      const saved = health
+        ? {
+            kind: "health",
+            ...data,
+            preferredLanguage: data.preferredLanguage || data.locale,
+            title: `Sağlık turizmi · ${labelOf(HEALTH_AREAS, data.treatmentArea)}`,
+            source: "health-form",
+            consentAt: time,
+            healthConsentAt: time,
+          }
+        : {
+            kind: "contact",
+            ...data,
+            title: `İletişim formu · ${labelOf(TRAVEL_TOPICS, data.topic)}`,
+            source: "contact-form",
+            consentAt: time,
+          };
+      Object.assign(saved, {
+        notes: "",
+        offerAmount: 0,
+        offerCurrency: health ? "EUR" : "TRY",
+        offerText: "",
+        outcome: "",
+      });
+      // Sağlık talepleri özel nitelikli veri içerir: denetim kaydına
+      // yazılmaz, yalnızca leads tablosunda tutulur.
+      store.db
+        .prepare(
+          "INSERT INTO leads(id,reference,status,data,created_at,updated_at) VALUES(?,?,'new',?,?,?)",
+        )
+        .run(requestId, reference, JSON.stringify(saved), time, time);
       res.status(201).json({ reference });
     },
   );
@@ -500,10 +741,22 @@ export function adminExtensions(app, store, backups) {
   app.get(prefix + "/leads", (req, res) => {
     const q = String(req.query.q || "").slice(0, 150),
       status = String(req.query.status || ""),
-      page = Math.max(1, Math.min(10000, parseInt(req.query.page) || 1));
+      page = Math.max(1, Math.min(10000, parseInt(req.query.page) || 1)),
+      // kind: hotel | tour | contact | health; virgülle birden fazlası
+      // (ör. "hotel,tour"); boş veya tanınmayan değer = tümü.
+      kinds = [
+        ...new Set(
+          String(req.query.kind || "")
+            .split(",")
+            .filter((k) => LEAD_KINDS.includes(k)),
+        ),
+      ];
     const where =
-        "(?='' OR status=?) AND (reference LIKE ? OR json_extract(data,'$.name') LIKE ? OR json_extract(data,'$.phone') LIKE ?)",
-      args = [status, status, ...Array(3).fill("%" + q + "%")];
+        "(?='' OR status=?) AND (reference LIKE ? OR json_extract(data,'$.name') LIKE ? OR json_extract(data,'$.phone') LIKE ?)" +
+        (kinds.length
+          ? ` AND json_extract(data,'$.kind') IN (${kinds.map(() => "?").join(",")})`
+          : ""),
+      args = [status, status, ...Array(3).fill("%" + q + "%"), ...kinds];
     const total = store.db
       .prepare("SELECT COUNT(*) AS count FROM leads WHERE " + where)
       .get(...args).count;

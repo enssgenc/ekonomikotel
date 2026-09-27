@@ -1,3 +1,4 @@
+import { AGENCY, whatsappUrl } from '../../src/lib/agency.js';
 import { getLocaleDirection, getMessages } from './i18n.js';
 
 const supportedLocales = ['tr', 'en', 'de', 'ru', 'ar', 'fr'];
@@ -47,13 +48,45 @@ export function message(key, values = {}, locale = currentLocale) {
   return value.replace(/\{(\w+)\}/g, (_, token) => String(values[token] ?? ''));
 }
 
+const escapeText = (value) => String(value).replace(/[&<>"']/g, (character) => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+}[character]));
+
+// TÜRSAB satırı: numara ve grup kodu AGENCY'den gelir, yalnızca çevresindeki metin çevrilir.
+export function licenseLink(locale = currentLocale) {
+  const text = escapeText(message('footer.license', {
+    no: '{no}',
+    group: AGENCY.tursabGroup,
+    groupCode: AGENCY.tursabGroup.split(' ')[0],
+  }, locale)).replace('{no}', `<bdi>${escapeText(AGENCY.tursabNo)}</bdi>`);
+  return `<a class="license-link" href="${escapeText(AGENCY.tursabVerifyUrl)}" target="_blank" rel="noopener noreferrer"><svg class="license-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v5.2c0 4.3 2.9 8.2 7 9.8 4.1-1.6 7-5.5 7-9.8V6l-7-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m8.8 12.2 2.2 2.2 4.3-4.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>${text}</span><span class="sr-only"> ${escapeText(message('footer.licenseVerify', {}, locale))}</span></a>`;
+}
+
+const phoneIcon = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M6.6 3.5h2.6l1.5 4-2 1.3a11.5 11.5 0 0 0 6.5 6.5l1.3-2 4 1.5v2.6a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+const chatIcon = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M4.5 19.5 5.6 16A8 8 0 1 1 8.4 18.6l-3.9.9Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+
+// Telefon ve WhatsApp bağlantıları: numara AGENCY'den gelir, yurt dışından aranabilir biçimde gösterilir.
+export function phoneLink(className = 'phone-link', locale = currentLocale) {
+  return `<a class="${className}" href="tel:${AGENCY.tel}">${phoneIcon}<span class="sr-only">${escapeText(message('contact.direct.call', {}, locale))}: </span><bdi dir="ltr">${escapeText(AGENCY.phoneIntl)}</bdi></a>`;
+}
+
+export function whatsappLink(className = 'whatsapp-link', locale = currentLocale) {
+  return `<a class="${className}" href="${escapeText(whatsappUrl(message('contact.direct.whatsappText', {}, locale)))}" target="_blank" rel="noopener noreferrer">${chatIcon}<span>${escapeText(message('contact.direct.whatsapp', {}, locale))}</span></a>`;
+}
+
+function renderDirectContact() {
+  const box = document.querySelector('#contact-direct');
+  if (!box) return;
+  box.innerHTML = `<h3>${escapeText(message('contact.direct.title'))}</h3><p>${escapeText(message('contact.direct.body'))}</p><div class="contact-direct-actions">${phoneLink('button button-primary direct-call')}${whatsappLink('button-link direct-whatsapp')}</div>`;
+}
+
 function renderHeader(page) {
   const home = page === 'home';
   const anchor = (id) => localizedHref(`${home ? '' : 'index.html'}#${id}`);
   const blogHref = localizedHref('blog.html');
   document.querySelector('#site-header').innerHTML = `
     <a class="skip-link" href="#main">${message('site.skip')}</a>
-    <div class="ekonomikotel-return"><a href="/">← Ekonomikotel</a></div><header class="site-header" id="top">
+    <div class="ekonomikotel-return"><a href="/">← Ekonomikotel</a><span class="return-phone"><span class="return-phone-label">${message('contact.direct.lineLabel')}</span>${phoneLink('return-phone-link')}</span></div><header class="site-header" id="top">
       <div class="page-shell header-inner">
         <a class="brand" href="${localizedHref('index.html')}" aria-label="${message('site.brandAria')}">
           <span class="brand-mark" aria-hidden="true">c<span>+</span></span>
@@ -65,6 +98,7 @@ function renderHeader(page) {
           <a href="${anchor('kapadokya')}">${message('nav.cappadocia')}</a>
           <a href="${blogHref}" ${page === 'blog' || page === 'article' ? 'aria-current="page"' : ''}>${message('nav.blog')}</a>
           <a href="${anchor('sorular')}">${message('nav.faq')}</a>
+          <a class="nav-contact" href="${anchor('iletisim')}">${message('nav.contact')}</a>
         </nav>
         <div class="header-tools">
           <label class="language-switcher" for="language-select">
@@ -72,7 +106,7 @@ function renderHeader(page) {
             <span class="sr-only">${message('site.languageLabel')}</span>
             <select id="language-select" aria-label="${message('site.languageLabel')}">${supportedLocales.map((code) => `<option value="${code}" ${code === currentLocale ? 'selected' : ''}>${localeNames[code]}</option>`).join('')}</select>
           </label>
-          <a class="header-action" href="${anchor('tedaviler')}">${message('nav.exploreTreatments')} <span class="arrow-icon" aria-hidden="true">↗</span></a>
+          <a class="header-action" href="${anchor('iletisim')}">${message('nav.contactAction')} <span class="arrow-icon" aria-hidden="true">↗</span></a>
           <button class="menu-toggle" type="button" aria-label="${message('site.menuOpen')}" aria-controls="site-nav" aria-expanded="false"><span></span><span></span></button>
         </div>
       </div>
@@ -107,6 +141,8 @@ function renderFooter(page) {
         <div class="footer-brand-area">
           <a class="brand footer-brand" href="${localizedHref('index.html')}" aria-label="${message('site.backToTopAria')}"><span class="brand-mark" aria-hidden="true">c<span>+</span></span><span class="brand-text"><strong>cappadocia</strong><span>HEALTH</span></span></a>
           <p>${message('footer.tagline')}</p>
+          <p class="footer-phone">${phoneLink('footer-phone-link')}${whatsappLink('footer-whatsapp-link')}</p>
+          <p class="footer-license">${licenseLink()}</p>
         </div>
         <nav aria-label="${message('nav.menuAria') || message('nav.treatments')}">
           <a href="${anchor('tedaviler')}">${message('nav.treatments')}</a>
@@ -114,11 +150,12 @@ function renderFooter(page) {
           <a href="${anchor('kapadokya')}">${message('nav.cappadocia')}</a>
           <a href="${localizedHref('blog.html')}">${message('nav.blog')}</a>
           <a href="${anchor('sorular')}">${message('nav.faq')}</a>
+          <a href="${anchor('iletisim')}">${message('nav.contact')}</a>
         </nav>
       </div>
       <div class="page-shell footer-bottom">
         <p>${message('footer.disclaimer')}</p>
-        <div class="source-links"><a href="https://healthturkiye.gov.tr/tr/branches" target="_blank" rel="noopener noreferrer">${message('footer.healthTurkiye')}</a><a href="https://kapadokyaalan.ktb.gov.tr/cappadokia/visit-points" target="_blank" rel="noopener noreferrer">${message('footer.heritageAuthority')}</a></div>
+        <div class="source-links"><a class="footer-privacy" href="${localizedHref('aydinlatma.html')}"${page === 'privacy' ? ' aria-current="page"' : ''}>${message('footer.privacy')}</a><a href="https://healthturkiye.gov.tr/tr/branches" target="_blank" rel="noopener noreferrer">${message('footer.healthTurkiye')}</a><a href="https://kapadokyaalan.ktb.gov.tr/cappadokia/visit-points" target="_blank" rel="noopener noreferrer">${message('footer.heritageAuthority')}</a></div>
       </div>
     </footer>`;
 }
@@ -146,6 +183,7 @@ function setLocale(locale, page, updateUrl = true) {
   }
   renderHeader(page);
   renderFooter(page);
+  renderDirectContact();
   translateStatic();
   document.title = message('site.title');
   document.querySelector('meta[name="description"]')?.setAttribute('content', message('site.description'));

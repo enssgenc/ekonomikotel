@@ -1,5 +1,6 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { render } from "../.ssr/entry-server.js";
+import { AGENCY } from "../src/lib/agency.js";
 const data = JSON.parse(await readFile("src/data/catalog.json", "utf8"));
 const template = await readFile("dist/index.html", "utf8");
 await writeFile("dist/shell.html", template);
@@ -33,7 +34,12 @@ const routes = [
   [
     "/iletisim",
     "İletişim",
-    "Ekonomikotel otel ve tur fiyat talepleri için iletişim bilgileri.",
+    `Otel, tur ve balayı talepleriniz için iletişim formu ve ${AGENCY.phoneDisplay} bilgi hattı. TÜRSAB Belge No: ${AGENCY.tursabNo}.`,
+  ],
+  [
+    "/kvkk-aydinlatma",
+    "KVKK Aydınlatma Metni",
+    "Ekonomikotel iletişim ve teklif formları için kişisel verilerin işlenmesine ilişkin aydınlatma metni.",
   ],
   [
     "/gorsel-kaynaklari",
